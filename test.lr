@@ -1,0 +1,9 @@
+let x 10
+let y 15
+
+cmp x y z
+
+print x z
+print y z
+
+//comment

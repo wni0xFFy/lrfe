@@ -1,5 +1,4 @@
-
-TARGET = w2bt
+TARGET = lrfe
 
 CC = clang
 
@@ -9,21 +8,16 @@ BIN_DIR = bin
 
 SRCS := $(shell find . -name "*.c" )
 OBJS := $(SRCS:%.c=$(BUILD_DIR)/%.o)
-EXEC = $(BIN_DIR)/$(TARGET)
+EXEC =  $(TARGET)
 
 #
 all: $(EXEC)
 $(EXEC): $(OBJS)
-	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $(OBJS) -o $(EXEC)
+	@rm -rf $(BUILD_DIR)
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-clean:
-	@rm -rf $(BUILD_DIR) $(BIN_DIR)
 
-run: $(EXEC)
-	@./$(EXEC)
-
-.PHONY: all clean run
+.PHONY: all

@@ -1,7 +1,8 @@
 # variables - var/let
 ``` LR
 
-let x = 10;
+let x = 10
+
 
 ```
 
@@ -9,8 +10,12 @@ let x = 10;
 
 ``` LR
 
-if x == 10{} 
-if(x == 10){}
+if x == 10 {
+
+}
+if x == 10 {
+
+}
 
 ```
 
