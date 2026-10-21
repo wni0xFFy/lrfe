@@ -9,6 +9,12 @@
 token_type id(char* str, int len);
 int len(char* str);
 
+const char* msgs[] = {
+	"function ",
+	"identifier ",
+	"variable ",
+	"keyword ",
+};
 int tokens(FILE* f, long file_size, token_type* output){
 	char* buffer = malloc(file_size);
 	int tokens_count = 0;
@@ -19,10 +25,8 @@ int tokens(FILE* f, long file_size, token_type* output){
 
 		for(int i = 0; i < lenght; i++){
 			if(buffer[i] == '\n' || buffer[i] == ' '){
-				if(word[0] == '@') fprintf(stdout, "function  %s\n", word);
-				else if(id(word, len(word)) == IDENTIFIER) fprintf(stdout, "identifier %s\n", word);
-				else if(id(word, len(word)) == KEYWORD) fprintf(stdout, "keyword %s\n", word);
-				else fprintf(stdout, "variable %s\n", word);
+				token_type tk = id(word, len(word));
+				fprintf(stdout, "%s%s\n", msgs[tk], word);
 		
 				wptr = 0;
 				tokens_count++;
@@ -43,6 +47,7 @@ int tokens(FILE* f, long file_size, token_type* output){
 
 
 token_type id(char* str, int len){
+	if(str[0] == '@') return FUNCTION;
 	char* keywords[] = {
 		"var",
 	};
@@ -54,7 +59,7 @@ token_type id(char* str, int len){
 	for(int i = 0; i < len; i++){
 		if(!isdigit(str[i])) return VARIABLE;
 	}
-	
+
 	return IDENTIFIER;
 }
 
