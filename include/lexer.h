@@ -16,6 +16,7 @@ typedef struct{
 typedef struct{
 	token_t* tokens;
 	int size;
+	int capacity;	
 } token_array_t;
 
 token_array_t tokens(char* input, long file_size);

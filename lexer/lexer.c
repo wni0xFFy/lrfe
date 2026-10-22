@@ -11,13 +11,22 @@ int len(char* str);
 
 token_array_t tokens(char* input, long file_size){
 	token_array_t arr = {0};
+
+	arr.capacity = 16;
 	arr.size = 0;
-	arr.tokens = malloc(128 * sizeof(token_t));
+	arr.tokens = malloc(arr.capacity * sizeof(token_t));
+
+
 	char* last_token_start = input;
 
 	for(int i = 0; i < file_size; i++){
 		if(input[i] == '\n' || input[i] == ' '){
 			token_type tk = id(last_token_start, (input + i) - last_token_start);
+			if(arr.size >= arr.capacity){
+				token_t* tmp = realloc(arr.tokens, arr.size + 16);
+				if(tmp != NULL) arr.tokens = tmp;
+				arr.capacity = arr.size + 16;
+			}
 			arr.tokens[arr.size] = (token_t){
 				.type = tk, 
 				.str_view = last_token_start, 
@@ -63,4 +72,3 @@ int len(char* str){
 	while(str[i] != 0) i++;
 	return i;
 }
-
