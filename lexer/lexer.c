@@ -9,51 +9,46 @@
 token_type id(char* str, int len);
 int len(char* str);
 
-const char* msgs[] = {
-	"function ",
-	"identifier ",
-	"variable ",
-	"keyword ",
-};
-int tokens(FILE* f, long file_size, token_type* output){
-	char* buffer = malloc(file_size);
-	int tokens_count = 0;
-	while(file_size > 0){
-		int lenght = fread(buffer, 1, file_size, f);
-		char word[128]; word[127] = '\0';
-		int wptr = 0;
+token_array_t tokens(char* input, long file_size){
+	token_array_t arr = {0};
+	arr.size = 0;
+	arr.tokens = malloc(128 * sizeof(token_t));
+	char* last_token_start = input;
 
-		for(int i = 0; i < lenght; i++){
-			if(buffer[i] == '\n' || buffer[i] == ' '){
-				token_type tk = id(word, len(word));
-				fprintf(stdout, "%s%s\n", msgs[tk], word);
-		
-				wptr = 0;
-				tokens_count++;
-				memset(word, 0, 127);
-				while(buffer[i] == '\n' || buffer[i] == ' ') i++;
-			}
-			word[wptr] = buffer[i];
-			wptr++;
+	for(int i = 0; i < file_size; i++){
+		if(input[i] == '\n' || input[i] == ' '){
+			token_type tk = id(last_token_start, (input + i) - last_token_start);
+			arr.tokens[arr.size] = (token_t){
+				.type = tk, 
+				.str_view = last_token_start, 
+				.str_view_lenght = (input + i) - last_token_start
+			};
+			
+			arr.size++;
+
+			while(input[i] == '\n' || input[i] == ' ') i++;
+			last_token_start = input + i;
 		}
-
-		fprintf(stdout, "%d", tokens_count);
-
-		file_size -= lenght;
 	}
-	free(buffer);
-	return tokens_count;
+
+	return arr;
 }
 
 
 token_type id(char* str, int len){
 	if(str[0] == '@') return FUNCTION;
-	char* keywords[] = {
-		"var",
+
+	struct table{
+		char* str;
+		token_type tp;
 	};
 
-	for(int i = 0; i < sizeof(keywords); i++){
-		if(memcmp(str, keywords[i], 3) == 0) return KEYWORD;
+	struct table keywords_table[] = {
+		(struct table){.str = "var", .tp = KEYWORD_VAR},
+	};
+
+	for(unsigned long i = 0; i < sizeof(keywords_table) / sizeof(struct table); i++){
+		if(memcmp(str, keywords_table[i].str, strlen(keywords_table[i].str)) == 0) return keywords_table[i].tp;
 	}
 
 	for(int i = 0; i < len; i++){
