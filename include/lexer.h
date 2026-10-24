@@ -1,5 +1,5 @@
-#include <stdio.h>
-
+#pragma once
+#include <coreutils.h>
 typedef enum{
 	FUNCTION,
 	IDENTIFIER,
@@ -13,10 +13,4 @@ typedef struct{
 	int str_view_lenght;
 } token_t;
 
-typedef struct{
-	token_t* tokens;
-	int size;
-	int capacity;	
-} token_array_t;
-
-token_array_t tokens(char* input, long file_size);
+dynamic_array_t tokens(char* input, long file_size);
