@@ -7,6 +7,7 @@
 
 token_type id(char* str, int len);
 int len(char* str);
+uint8_t is_numeric_literal(char* str, int len);
 
 dynamic_array_t tokens(char* input, long file_size){
 	dynamic_array_t arr = {0};
@@ -23,7 +24,7 @@ dynamic_array_t tokens(char* input, long file_size){
 			token_type tk = id(last_token_start, (input + i) - last_token_start);
 			
 			if(arr.size >= arr.capacity){
-				token_t* tmp = realloc(arr.data, arr.size + 16);
+				token_t* tmp = realloc(arr.data, sizeof(token_t) * arr.size + 16);
 				if(tmp != NULL) arr.data = tmp;
 				arr.capacity = arr.size + 16;
 			}
@@ -35,8 +36,18 @@ dynamic_array_t tokens(char* input, long file_size){
 			};
 			
 			arr.size++;
-
+			
 			while(input[i] == '\n' || input[i] == ' ') i++;
+
+			if(input[i - 1] == '\n'){
+				((token_t*)arr.data)[arr.size] = (token_t){
+					.type = NEWLINE, 
+					.str_view = NULL, 
+					.str_view_lenght = 0,
+				};
+				
+				arr.size++;
+			}
 			last_token_start = input + i;
 		}
 	}
@@ -60,16 +71,18 @@ token_type id(char* str, int len){
 	for(unsigned long i = 0; i < sizeof(keywords_table) / sizeof(struct table); i++){
 		if(memcmp(str, keywords_table[i].str, strlen(keywords_table[i].str)) == 0) return keywords_table[i].tp;
 	}
-
-	for(int i = 0; i < len; i++){
-		if(!isdigit(str[i])) return VARIABLE;
-	}
-
-	return IDENTIFIER;
+	return is_numeric_literal(str, len) ? NUM_LITERAL : VARIABLE;
 }
 
 int len(char* str){
 	int i = 0;
 	while(str[i] != 0) i++;
 	return i;
+}
+
+uint8_t is_numeric_literal(char* str, int len){
+	for(int i = 0; i < len; i++){
+		if(!isdigit(str[i])) return 0;
+	}
+	return 1;
 }

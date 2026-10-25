@@ -1,8 +1,9 @@
 #pragma once
 #include <coreutils.h>
 typedef enum{
+	NEWLINE,
 	FUNCTION,
-	IDENTIFIER,
+	NUM_LITERAL,
 	VARIABLE,
 	KEYWORD_VAR,
 } token_type;
