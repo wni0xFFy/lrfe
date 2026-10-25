@@ -66,11 +66,13 @@ token_type id(char* str, int len){
 
 	struct table keywords_table[] = {
 		(struct table){.str = "var", .tp = KEYWORD_VAR},
+		(struct table){.str = "print", .tp = KEYWORD_PRINT},
 	};
 
 	for(unsigned long i = 0; i < sizeof(keywords_table) / sizeof(struct table); i++){
 		if(memcmp(str, keywords_table[i].str, strlen(keywords_table[i].str)) == 0) return keywords_table[i].tp;
 	}
+	
 	return is_numeric_literal(str, len) ? NUM_LITERAL : VARIABLE;
 }
 

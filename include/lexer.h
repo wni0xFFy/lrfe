@@ -6,6 +6,7 @@ typedef enum{
 	NUM_LITERAL,
 	VARIABLE,
 	KEYWORD_VAR,
+	KEYWORD_PRINT,
 } token_type;
 
 typedef struct{
