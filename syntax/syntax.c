@@ -10,10 +10,14 @@ uint8_t is_print(node_t node);
 
 int syntax_checker(dynamic_array_t* _nodes){
 	node_t* nodes = _nodes->data;
-
+	uint8_t (*checkers[]) (node_t node) = {
+		is_var,	
+		is_print,
+	};
    for(node_t* node = nodes; node <= nodes + _nodes->size ; node++){
-		if(is_var(*node) == 2) fprintf(stdout, "Wrong syntax in variable creation!");
-		if(is_print(*node) == 2) fprintf(stdout, "Wrong syntax in print!");
+   		for(unsigned long i = 0; i < sizeof(checkers) / sizeof(checkers[0]); i++){
+   			if(checkers[i](*node) == 2) fprintf(stdout, "wrong syntax");
+   		}
 	}
 	return 1;
 }

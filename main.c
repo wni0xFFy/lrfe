@@ -13,11 +13,9 @@ int main(){
 	fread(buffer, 1, s, f);
 
 	dynamic_array_t c = tokens(buffer, s);
-	token_t* t = c.data;
 	//for(int i = 0; i < c.size; i++) printf("%d\n", t[i].type);
 	dynamic_array_t n = nodes(&c);
 	syntax_checker(&n);
-	node_t* nodes = n.data;
 	// for(int i = 0; i < n.size; i++){
 	// 	node_t* node = nodes + i;
 	// 	if(node->token.type == FUNCTION) fprintf(stdout, "\tfunction : \n");
