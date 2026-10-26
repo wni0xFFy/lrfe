@@ -38,7 +38,7 @@ dynamic_array_t tokens(char* input, long file_size){
 			arr.size++;
 			
 			while(input[i] == '\n' || input[i] == ' ') i++;
-
+			//ADD EOF PARSING
 			if(input[i - 1] == '\n'){
 				((token_t*)arr.data)[arr.size] = (token_t){
 					.type = NEWLINE, 
