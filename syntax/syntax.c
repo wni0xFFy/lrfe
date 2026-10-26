@@ -8,8 +8,10 @@
 #include <string.h>
 
 typedef struct{
-	int literal;
+	char* literal;
+	int literal_size;
 	char* name;
+	int name_size;
 } variable_t;
 
 typedef struct{
@@ -17,14 +19,9 @@ typedef struct{
 	int code;
 } error_t;
 
-typedef enum{
-	ALREADY_EXISTS,
-	NOT_EXISTS,
-} varState;
-
 error_t is_var(node_t node, dynamic_array_t* vars);
 error_t is_print(node_t node, dynamic_array_t* vars);
-varState check_var(dynamic_array_t vars, token_t var);
+variable_t* check_var(dynamic_array_t vars, token_t var);
 
 int syntax_checker(dynamic_array_t* _nodes){
 	dynamic_array_t vars = {.data = malloc(sizeof(variable_t) * 32), .size = 0};
@@ -45,20 +42,23 @@ int syntax_checker(dynamic_array_t* _nodes){
 }
 
 error_t is_var(node_t node, dynamic_array_t* vars){
+	variable_t* variables = vars->data;
 	if(node.token.type != KEYWORD_VAR) 
 		return (error_t){.code = 0, .msg = 0};
 
 	if(node.args_count == 2){
 		if(node.args[0].type == VARIABLE && node.args[1].type == NUM_LITERAL) 
-			if(check_var(*vars, node.args[0]) == ALREADY_EXISTS)
+			if(check_var(*vars, node.args[0]) != NULL)
 				return (error_t){.code = 2, .msg = "variable already exists"};
 
-			((variable_t*)vars->data)[vars->size] = (variable_t)
-			{
-					.name = node.args[0].str_view
+			variables[vars->size] = (variable_t){
+				.name = node.args[0].str_view, 
+				.name_size = node.args[0].str_view_lenght,
+				.literal = node.args[1].str_view,
+				.literal_size = node.args[1].str_view_lenght,
 			};
-
 			vars->size++;
+
 			return (error_t){.code = 1, .msg = "var succesfully created!"};
 	}
 
@@ -70,20 +70,28 @@ error_t is_print(node_t node, dynamic_array_t* vars){
 		return (error_t){.code = 0, .msg = 0};
 
 	if(node.args_count == 1){
-		if(node.args[0].type == VARIABLE) 
+		if(node.args[0].type == VARIABLE) {
+			variable_t* var = check_var(*vars, node.args[0]);
+			if(var != NULL){
+				fwrite(var->name, 1, var->name_size, stdout);
+				fprintf(stdout, " : ");
+				fwrite(var->literal, 1, var->literal_size, stdout);
+				fprintf(stdout, "\n");
+			}
 			return (error_t){.code = 1, .msg = 0};
+		}
 	}
 
 	return (error_t){.code = 2, .msg = "invalid 'print' using"};
  }
 
-varState check_var(dynamic_array_t vars, token_t var){
+variable_t* check_var(dynamic_array_t vars, token_t var){
 	variable_t* v = vars.data;
 	for(int i = 0; i < vars.size; i++){
 		if(memcmp(v[i].name, var.str_view, var.str_view_lenght) == 0){
-			return ALREADY_EXISTS;
+			return v + i;
 		}
 	}
 
-	return NOT_EXISTS;
+	return NULL;
 }
