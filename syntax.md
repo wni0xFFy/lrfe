@@ -1,27 +1,15 @@
-# variables - var/let
+# variables - var
 ``` LR
-
-let x = 10
-
+var x 10
 
 ```
 
-# if/else statements - if-else
+# if statements - cmp
 
 ``` LR
 
-if x == 10 {
-
-}
-if x == 10 {
+cmp x 10 {
 
 }
 
 ```
-
-# keywords
-
-```LR
-	print x != print(x)
-```
-

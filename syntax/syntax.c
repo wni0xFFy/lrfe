@@ -59,7 +59,7 @@ error_t is_var(node_t node, dynamic_array_t* vars){
 			};
 			vars->size++;
 
-			return (error_t){.code = 1, .msg = "var succesfully created!"};
+			return (error_t){.code = 1, .msg = 0};
 	}
 
 	return (error_t){.code = 2, .msg = "invalid 'var' using"};
@@ -72,13 +72,8 @@ error_t is_print(node_t node, dynamic_array_t* vars){
 	if(node.args_count == 1){
 		if(node.args[0].type == VARIABLE) {
 			variable_t* var = check_var(*vars, node.args[0]);
-			if(var != NULL){
-				fwrite(var->name, 1, var->name_size, stdout);
-				fprintf(stdout, " : ");
-				fwrite(var->literal, 1, var->literal_size, stdout);
-				fprintf(stdout, "\n");
-			}
-			return (error_t){.code = 1, .msg = 0};
+			if(var != NULL) return (error_t){.code = 1, .msg = 0};
+			else return (error_t){.code = 2, .msg = "unknown variable."};
 		}
 	}
 

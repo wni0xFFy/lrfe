@@ -37,7 +37,7 @@ dynamic_array_t tokens(char* input, long file_size){
 			
 			arr.size++;
 			
-			while(input[i] == '\n' || input[i] == ' ') i++;
+			while(input[i] == '\n' || input[i] == ' ' ) i++;
 			//ADD EOF PARSING
 			if(input[i - 1] == '\n'){
 				((token_t*)arr.data)[arr.size] = (token_t){
@@ -70,7 +70,9 @@ token_type id(char* str, int len){
 	};
 
 	for(unsigned long i = 0; i < sizeof(keywords_table) / sizeof(struct table); i++){
-		if(memcmp(str, keywords_table[i].str, strlen(keywords_table[i].str)) == 0) return keywords_table[i].tp;
+		if(memcmp(str, keywords_table[i].str, strlen(keywords_table[i].str)) == 0){
+			return keywords_table[i].tp;
+		}
 	}
 	
 	return is_numeric_literal(str, len) ? NUM_LITERAL : VARIABLE;

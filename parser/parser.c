@@ -28,7 +28,7 @@ node_t assembly_arguments(token_t* tokens, int* current_pos){
 	node.token = tokens[*current_pos];
 	node.args = malloc(512);
 	*current_pos += 1;
- 	while(1 ){
+ 	while(1){
  		if(tokens[*current_pos].type == NEWLINE) break;
 		node.args[node.args_count] = tokens[*current_pos];
 		node.args_count++;
