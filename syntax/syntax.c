@@ -34,6 +34,8 @@ int syntax_checker(dynamic_array_t* _nodes){
    		for(unsigned long i = 0; i < sizeof(checkers) / sizeof(checkers[0]); i++){
    			error_t err = checkers[i](*node, &vars);
    			if(err.code == 2) fprintf(stdout, "%s\n", err.msg);
+   			err = checkers[i](*(node->child), &vars);
+   			if(err.code == 2) fprintf(stdout, "%s\n", err.msg);
    		}
 	}
 	return 1;

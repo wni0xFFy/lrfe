@@ -2,9 +2,9 @@
 
 #include <lexer.h>
 
-struct node_t;
+//struct node_t;
 
-typedef struct {
+typedef struct node_t{
 	token_t token;
 	token_t* args;
 	int args_count;
