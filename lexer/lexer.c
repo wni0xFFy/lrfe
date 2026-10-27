@@ -59,8 +59,7 @@ dynamic_array_t tokens(char* input, long file_size){
 
 token_type id(char* str, int len){
 	if(str[0] == '@') return FUNCTION;
-	if(str[0] == '{') return OPEN_CODE_BLOCK;
-	if(str[0] == '}') return CLOSE_CODE_BLOCK;
+
 	struct table{
 		char* str;
 		token_type tp;
@@ -69,6 +68,8 @@ token_type id(char* str, int len){
 	struct table keywords_table[] = {
 		(struct table){.str = "var", .tp = KEYWORD_VAR},
 		(struct table){.str = "print", .tp = KEYWORD_PRINT},
+		(struct table){.str = "}", .tp = CLOSE_CODE_BLOCK},
+		(struct table){.str = "{", .tp = OPEN_CODE_BLOCK},
 	};
 
 	for(unsigned long i = 0; i < sizeof(keywords_table) / sizeof(struct table); i++){
