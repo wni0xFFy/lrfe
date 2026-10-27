@@ -15,5 +15,10 @@ int main(){
 
 	dynamic_array_t c = tokens(buffer, s);
 	dynamic_array_t n = nodes(&c);
+	token_t* nds = c.data;
+	for(int i = 0; i < c.size; i++){
+		if(nds[i].type == OPEN_CODE_BLOCK) fprintf(stdout, "OPEN\n");
+ 		if(nds[i].type == CLOSE_CODE_BLOCK) fprintf(stdout, "CLOSE\n");
+	}
 	syntax_checker(&n);
 }

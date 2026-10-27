@@ -37,8 +37,8 @@ dynamic_array_t tokens(char* input, long file_size){
 			
 			arr.size++;
 			
-			while(input[i] == '\n' || input[i] == ' ' ) i++;
-			//ADD EOF PARSING
+			//fix it tomorrow
+			while(input[i] == '\n' || input[i] == ' ') i++;
 			if(input[i - 1] == '\n'){
 				((token_t*)arr.data)[arr.size] = (token_t){
 					.type = NEWLINE, 
@@ -48,6 +48,7 @@ dynamic_array_t tokens(char* input, long file_size){
 				
 				arr.size++;
 			}
+
 			last_token_start = input + i;
 		}
 	}
@@ -58,7 +59,8 @@ dynamic_array_t tokens(char* input, long file_size){
 
 token_type id(char* str, int len){
 	if(str[0] == '@') return FUNCTION;
-
+	if(str[0] == '{') return OPEN_CODE_BLOCK;
+	if(str[0] == '}') return CLOSE_CODE_BLOCK;
 	struct table{
 		char* str;
 		token_type tp;

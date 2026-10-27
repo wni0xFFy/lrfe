@@ -1,6 +1,8 @@
 #pragma once
 #include <coreutils.h>
 typedef enum{
+	CLOSE_CODE_BLOCK,
+	OPEN_CODE_BLOCK,
 	NEWLINE,
 	FUNCTION,
 	NUM_LITERAL,

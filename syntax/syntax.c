@@ -8,8 +8,6 @@
 #include <string.h>
 
 typedef struct{
-	char* literal;
-	int literal_size;
 	char* name;
 	int name_size;
 } variable_t;
@@ -47,19 +45,19 @@ error_t is_var(node_t node, dynamic_array_t* vars){
 		return (error_t){.code = 0, .msg = 0};
 
 	if(node.args_count == 2){
-		if(node.args[0].type == VARIABLE && node.args[1].type == NUM_LITERAL) 
-			if(check_var(*vars, node.args[0]) != NULL)
+		if(node.args[0].type == VARIABLE && node.args[1].type == NUM_LITERAL) {
+			if(check_var(*vars, node.args[0]) != NULL){
 				return (error_t){.code = 2, .msg = "variable already exists"};
+			}
 
 			variables[vars->size] = (variable_t){
 				.name = node.args[0].str_view, 
 				.name_size = node.args[0].str_view_lenght,
-				.literal = node.args[1].str_view,
-				.literal_size = node.args[1].str_view_lenght,
 			};
 			vars->size++;
 
 			return (error_t){.code = 1, .msg = 0};
+		}
 	}
 
 	return (error_t){.code = 2, .msg = "invalid 'var' using"};
