@@ -44,9 +44,11 @@ node_t assembly_arguments(token_t* tokens, int* current_pos){
 	 		case OPEN_CODE_BLOCK:
 				*current_pos += 1;	
 				while(tokens[*current_pos].type != CLOSE_CODE_BLOCK){
+					if(tokens[*current_pos].type == NEWLINE) {*current_pos += 1; continue;}
 					if(tokens[*current_pos].type == FUNCTION || tokens[*current_pos].type >= KEYWORD_VAR){
 						child->token = tokens[*current_pos];
-						//*child = assembly_arguments(tokens, current_pos);
+						*current_pos += 1;
+						continue;
 					}
 				 	child->args[child->args_count] = tokens[*current_pos];
 				 	child->args_count++;

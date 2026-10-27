@@ -19,7 +19,11 @@ int main(){
 	for(int i = 0; i < c.size; i++){
 		node_t* child = nds[i].child;
 		if(child != NULL){
-		if(child->args_count > 0) fprintf(stdout, "CHILDD\n");
+			if(child->args_count > 0){
+				for(int i = 0; i < child->args_count; i++){
+					fprintf(stdout, "ARGUMENT\n");
+				}
+			}
 		}
 	}
 
