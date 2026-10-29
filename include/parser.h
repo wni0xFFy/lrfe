@@ -9,6 +9,7 @@ typedef struct node_t{
 	token_t* args;
 	int args_count;
 	struct node_t* child;
+	int childs;
 } node_t;
 
 dynamic_array_t nodes(dynamic_array_t* tokens); 

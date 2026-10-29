@@ -1,2 +1,4 @@
-var y 145 { var x 15 }
+var y 145  
+var x 1
+var y 1 
 print y 

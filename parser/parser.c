@@ -25,51 +25,48 @@ dynamic_array_t nodes(dynamic_array_t* tokens){
 
 node_t assembly_arguments(token_t* tokens, int* current_pos, int tokens_size){
 	node_t node = {0};
-	node_t* child = malloc(sizeof(node_t));
 
 	node.token = tokens[*current_pos];
 	node.args = malloc(512);
-	node.child = child;
-	child->args = malloc(1024);
-	child->args_count = 0;
+	node.child = malloc(sizeof(node_t));
+	node.child->args = malloc(1024);
+	node.child->args_count = 0;
+	node.childs = 0;
 	*current_pos += 1;
-	int isBlock = 0;
+
 
  	while(1){
  		switch(tokens[*current_pos].type){
 	 		case NEWLINE:
+	 			node.child -= node.childs;
 	 			return node;
-	 			break;
+	 		break;
 
 	 		case OPEN_CODE_BLOCK:
 				*current_pos += 1;	
-				fprintf(stderr, "%d", tokens_size);
-				while(tokens[*current_pos].type != CLOSE_CODE_BLOCK && *current_pos < tokens_size - 1){ //i don't know WHY -1 but if you delete it without '}' program shutdown with bus error 
-					if(tokens[*current_pos].type == NEWLINE) {*current_pos += 1; continue;} //here should be offsetting
-					if(tokens[*current_pos].type == FUNCTION || tokens[*current_pos].type >= KEYWORD_VAR){
-						child->token = tokens[*current_pos];
-						/*
-							change this logic  WHEN NEWLINE the child should be 
-							saved like in node_t should be array of children(or dynamic_array_t or pointer + size)
-						*/
-
-						*current_pos += 1;
-						continue;
+				while(tokens[*current_pos].type != CLOSE_CODE_BLOCK){ //here should be some limit(for avoid bus error or segfault)
+					if(tokens[*current_pos].type == NEWLINE) {node.child++; node.childs++;}
+					else if(tokens[*current_pos].type == FUNCTION || tokens[*current_pos].type >= KEYWORD_VAR){
+						node.child->token = tokens[*current_pos];
 					}
-				 	child->args[child->args_count] = tokens[*current_pos];
-				 	child->args_count++;
+				 	else {
+				 		node.child->args[node.child->args_count] = tokens[*current_pos];
+				 		node.child->args_count++;
+				 		*current_pos += 1;
+				 	}
 				 	*current_pos += 1;
+
 			 	}
 	 		break;
 
 	 		default:
 	 			node.args[node.args_count] = tokens[*current_pos];
 				node.args_count++;
-				break;
+			break;
  		}
 
  		*current_pos += 1;
 	}
-
+	node.child -= node.childs;	
 	return node;
 }
