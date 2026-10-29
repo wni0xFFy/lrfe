@@ -2,7 +2,7 @@ TARGET = lrfe
 
 CC = clang
 
-CFLAGS = -Wall -Wextra -O2 -I./include/ -g #-fsanitize=address
+CFLAGS =  -g -fsanitize=address -Wall -Wextra -O2 -I./include/
 BUILD_DIR = build
 BIN_DIR = bin
 

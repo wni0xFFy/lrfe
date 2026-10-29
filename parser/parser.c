@@ -28,34 +28,43 @@ node_t assembly_arguments(token_t* tokens, int* current_pos, int tokens_size){
 
 	node.token = tokens[*current_pos];
 	node.args = malloc(512);
-	node.child = malloc(sizeof(node_t));
-	node.child->args = malloc(1024);
+	node.child = malloc(sizeof(node_t) * 16);
+	node.child->args = malloc(sizeof(token_t) * 32);
 	node.child->args_count = 0;
 	node.childs = 0;
 	*current_pos += 1;
 
+	node_t* child = node.child;
 
  	while(1){
  		switch(tokens[*current_pos].type){
 	 		case NEWLINE:
-	 			node.child -= node.childs;
 	 			return node;
 	 		break;
 
 	 		case OPEN_CODE_BLOCK:
-				*current_pos += 1;	
-				while(tokens[*current_pos].type != CLOSE_CODE_BLOCK){ //here should be some limit(for avoid bus error or segfault)
-					if(tokens[*current_pos].type == NEWLINE) {node.child++; node.childs++;}
-					else if(tokens[*current_pos].type == FUNCTION || tokens[*current_pos].type >= KEYWORD_VAR){
-						node.child->token = tokens[*current_pos];
+			 	*current_pos += 1;	
+				while(*current_pos < tokens_size){
+					if(tokens[*current_pos].type == CLOSE_CODE_BLOCK){fprintf(stdout, "im not human\n");break;}
+					if(tokens[*current_pos].type == NEWLINE){
+						child++;
+						child->args = malloc(sizeof(token_t) * 32);;
+						child->args_count = 0;
+						node.childs++;
 					}
+					else if(tokens[*current_pos].type == FUNCTION || tokens[*current_pos].type >= KEYWORD_VAR){
+					  	child[node.childs].token = tokens[*current_pos];
+					}		
 				 	else {
-				 		node.child->args[node.child->args_count] = tokens[*current_pos];
-				 		node.child->args_count++;
-				 		*current_pos += 1;
-				 	}
-				 	*current_pos += 1;
+				 		int count = child->args_count;
+				 		token_t* ch = child->args;
+				 		token_t tk = tokens[*current_pos];
 
+				 	 	ch[count] = tk;
+
+				 	 	child->args_count += 1;
+				 	 }
+				 	*current_pos += 1;
 			 	}
 	 		break;
 
@@ -67,6 +76,5 @@ node_t assembly_arguments(token_t* tokens, int* current_pos, int tokens_size){
 
  		*current_pos += 1;
 	}
-	node.child -= node.childs;	
 	return node;
 }
