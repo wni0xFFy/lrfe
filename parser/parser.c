@@ -60,7 +60,7 @@ node_t assembly_arguments(token_t* tokens, int* current_pos, int tokens_size){
 				 	child->args_count++;
 				 	*current_pos += 1;
 			 	}
-	 		// 	break;
+	 		break;
 
 	 		default:
 	 			node.args[node.args_count] = tokens[*current_pos];

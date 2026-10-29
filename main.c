@@ -27,5 +27,5 @@ int main(){
 		}
 	}
 
-	//syntax_checker(&n);
+	syntax_checker(&n);
 }
