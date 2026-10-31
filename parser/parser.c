@@ -54,7 +54,7 @@ node_t assembly_arguments(token_t* tokens, int* current_pos, int tokens_size){
 	 				node.child[node.child_count] = assembly_arguments(tokens, current_pos, tokens_size);
 	 				node.child_count += 1;
 
-	 				fprintf(stdout, "new child\n");
+	 				//fprintf(stdout, "new child\n");
 	 			}
 	 		break;
 

@@ -16,16 +16,10 @@ int main(){
 	buffer[s - 1] = '\n';
 
 	dynamic_array_t c = tokens(buffer, s);
-	view_tokens(c);
+	//view_tokens(c);
 	dynamic_array_t n = nodes(&c);
 	node_t* nds = n.data;
 	
-	for(int i = 0; i < n.size; i++){
-		if(nds[i].child_count > 0){
-			view_tokens((dynamic_array_t){.data = nds[i].child[0].args, .size = nds[i].child[0].args_count});
-			fprintf(stdout, "ok");
-		}
-	}
 	syntax_checker(&n);
 }
 
