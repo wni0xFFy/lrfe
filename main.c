@@ -19,13 +19,11 @@ int main(){
 	view_tokens(c);
 	dynamic_array_t n = nodes(&c);
 	node_t* nds = n.data;
+	
 	for(int i = 0; i < n.size; i++){
-		if(nds[i].childs > 0){
-			fprintf(stdout, "CHILDS %d", nds[i].childs);
-			// for(int j = 0; j < nds[i].childs; j++){
-			// 	node_t child = nds[i].child[j];
-			// 	fprintf(stdout, "child : %.*s", child.token.str_view_lenght, child.token.str_view);
-			// }
+		if(nds[i].child_count > 0){
+			view_tokens((dynamic_array_t){.data = nds[i].child[0].args, .size = nds[i].child[0].args_count});
+			fprintf(stdout, "ok");
 		}
 	}
 	syntax_checker(&n);

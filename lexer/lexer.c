@@ -23,7 +23,7 @@ dynamic_array_t tokens(char* input, long file_size){
 		if(input[i] == '\n' || input[i] == ' '){
 			token_type tk = id(last_token_start, (input + i) - last_token_start);
 			
-			if(arr.size >= arr.capacity){
+			if(arr.size + 2 >= arr.capacity){
 				token_t* tmp = realloc(arr.data, sizeof(token_t) * (arr.size + 16));
 				if(tmp != NULL) arr.data = tmp;
 				arr.capacity = arr.size + 16;

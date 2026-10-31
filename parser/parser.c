@@ -27,50 +27,43 @@ node_t assembly_arguments(token_t* tokens, int* current_pos, int tokens_size){
 	node_t node = {0};
 
 	node.token = tokens[*current_pos];
-	node.args = malloc(512);
-	node.child = malloc(sizeof(node_t) * 16);
-	node.child->args = malloc(sizeof(token_t) * 32);
-	node.child->args_count = 0;
-	node.childs = 0;
+	node.args_count = 0;
+
 	*current_pos += 1;
 
-	node_t* child = node.child;
-
- 	while(1){
+ 	while(1){ 
  		switch(tokens[*current_pos].type){
 	 		case NEWLINE:
 	 			return node;
 	 		break;
 
-	 		case OPEN_CODE_BLOCK:
-			 	*current_pos += 1;	
-				while(*current_pos < tokens_size){
-					if(tokens[*current_pos].type == CLOSE_CODE_BLOCK){fprintf(stdout, "im not human\n");break;}
-					if(tokens[*current_pos].type == NEWLINE){
-						child++;
-						child->args = malloc(sizeof(token_t) * 32);;
-						child->args_count = 0;
-						node.childs++;
-					}
-					else if(tokens[*current_pos].type == FUNCTION || tokens[*current_pos].type >= KEYWORD_VAR){
-					  	child[node.childs].token = tokens[*current_pos];
-					}		
-				 	else {
-				 		int count = child->args_count;
-				 		token_t* ch = child->args;
-				 		token_t tk = tokens[*current_pos];
-
-				 	 	ch[count] = tk;
-
-				 	 	child->args_count += 1;
-				 	 }
-				 	*current_pos += 1;
-			 	}
+	 		case CLOSE_CODE_BLOCK:
+	 			return node;
 	 		break;
 
+	 		case OPEN_CODE_BLOCK:
+	 			node.child = malloc(sizeof(node_t));
+	 			node.child_count = 0;
+	 			*current_pos += 1;
+
+	 			while(tokens[*current_pos].type != CLOSE_CODE_BLOCK){
+	 				if(tokens[*current_pos].type == NEWLINE) *current_pos += 1;
+	 				if(tokens[*current_pos].type == CLOSE_CODE_BLOCK) break;
+
+					node.child = realloc(node.child, (node.child_count + 1) * sizeof(node_t));
+	 				node.child[node.child_count] = assembly_arguments(tokens, current_pos, tokens_size);
+	 				node.child_count += 1;
+
+	 				fprintf(stdout, "new child\n");
+	 			}
+	 		break;
+
+
 	 		default:
+	 			node.args = realloc(node.args, (node.args_count + 1) * sizeof(token_t));
+	 			if(node.args == NULL) return node;	 	
 	 			node.args[node.args_count] = tokens[*current_pos];
-				node.args_count++;
+	 			node.args_count += 1;
 			break;
  		}
 

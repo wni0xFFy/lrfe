@@ -33,9 +33,7 @@ int syntax_checker(dynamic_array_t* _nodes){
    for(node_t* node = nodes; node < nodes + _nodes->size ; node++){
    		for(unsigned long i = 0; i < sizeof(checkers) / sizeof(checkers[0]); i++){
    			error_t err = checkers[i](*node, &vars);
-   			if(err.code == 2) fprintf(stdout, "%s\n", err.msg);
-   			err = checkers[i](*(node->child), &vars);
-   			if(err.code == 2) fprintf(stdout, "%s\n", err.msg);
+   			if(err.code == 2) fprintf(stdout, "%d, %s\n", node->args_count, err.msg);
    		}
 	}
 	return 1;
