@@ -18,19 +18,17 @@ int main(){
 	dynamic_array_t c = tokens(buffer, s);
 	view_tokens(c);
 	dynamic_array_t n = nodes(&c);
-	//node_t* nds = n.data;
-	// for(int i = 0; i < c.size; i++){
-	// 	node_t* child = nds[i].child;
-	// 	if(child != NULL){
-	// 		if(child->args_count > 0){
-	// 			for(int i = 0; i < child->args_count; i++){
-	// 				fprintf(stdout, "ARGUMENT\n");
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	//syntax_checker(&n);
+	node_t* nds = n.data;
+	for(int i = 0; i < n.size; i++){
+		if(nds[i].childs > 0){
+			fprintf(stdout, "CHILDS %d", nds[i].childs);
+			// for(int j = 0; j < nds[i].childs; j++){
+			// 	node_t child = nds[i].child[j];
+			// 	fprintf(stdout, "child : %.*s", child.token.str_view_lenght, child.token.str_view);
+			// }
+		}
+	}
+	syntax_checker(&n);
 }
 
 void view_tokens(dynamic_array_t tokens){
@@ -60,6 +58,9 @@ void view_tokens(dynamic_array_t tokens){
 				break;
 			case KEYWORD_PRINT:
 				fprintf(stdout, "KEYWORD-PRINT ");
+				break;
+			default:
+				fprintf(stdout, "UNEXPECTED TOKEN ");
 				break;
 		}
 	}

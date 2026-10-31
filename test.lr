@@ -1,5 +1,5 @@
 var y 145 { 
-   var x x
-   var y 16
+   var y 26
+   var y y
 }
 print y 
