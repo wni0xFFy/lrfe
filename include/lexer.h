@@ -9,6 +9,7 @@ typedef enum{
 	VARIABLE,
 	KEYWORD_VAR,
 	KEYWORD_PRINT,
+	KEYWORD_IF,
 } token_type;
 
 typedef struct{

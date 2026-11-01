@@ -42,6 +42,7 @@ node_t assembly_arguments(token_t* tokens, int* current_pos, int tokens_size){
 	 		break;
 
 	 		case OPEN_CODE_BLOCK:
+	 			//assemblying code block via recursion
 	 			node.child = malloc(sizeof(node_t));
 	 			node.child_count = 0;
 	 			*current_pos += 1;
@@ -54,12 +55,12 @@ node_t assembly_arguments(token_t* tokens, int* current_pos, int tokens_size){
 	 				node.child[node.child_count] = assembly_arguments(tokens, current_pos, tokens_size);
 	 				node.child_count += 1;
 
-	 				//fprintf(stdout, "new child\n");
 	 			}
 	 		break;
 
 
 	 		default:
+	 			//add token to current node arguments
 	 			node.args = realloc(node.args, (node.args_count + 1) * sizeof(token_t));
 	 			if(node.args == NULL) return node;	 	
 	 			node.args[node.args_count] = tokens[*current_pos];

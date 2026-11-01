@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+//write IF blocks
+
 typedef struct{
 	char* name;
 	int name_size;
@@ -34,6 +36,7 @@ int syntax_checker(dynamic_array_t* _nodes){
    		for(unsigned long i = 0; i < sizeof(checkers) / sizeof(checkers[0]); i++){
    			error_t err = checkers[i](*node, &vars);
    			if(err.code == 2) fprintf(stdout, "%s\n", err.msg);
+
    			for(int j = 0; j < node->child_count; j++){
    				err = checkers[i](node->child[j], &vars);
    				if(err.code == 2) fprintf(stdout, "%s\n", err.msg);

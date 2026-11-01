@@ -72,6 +72,7 @@ token_type id(char* str, int len){
 		(struct table){.str = "print", .tp = KEYWORD_PRINT},
 		(struct table){.str = "}", .tp = CLOSE_CODE_BLOCK},
 		(struct table){.str = "{", .tp = OPEN_CODE_BLOCK},
+		(struct table){.str = "if", .tp = KEYWORD_IF},
 	};
 
 	for(unsigned long i = 0; i < sizeof(keywords_table) / sizeof(struct table); i++){
