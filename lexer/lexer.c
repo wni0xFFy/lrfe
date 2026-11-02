@@ -67,17 +67,20 @@ token_type id(char* str, int len){
 		token_type tp;
 	};
 
-	struct table keywords_table[] = {
+	struct table tokens_table[] = {
 		(struct table){.str = "var", .tp = KEYWORD_VAR},
 		(struct table){.str = "print", .tp = KEYWORD_PRINT},
+		(struct table){.str = "if", .tp = KEYWORD_IF}, 
 		(struct table){.str = "}", .tp = CLOSE_CODE_BLOCK},
 		(struct table){.str = "{", .tp = OPEN_CODE_BLOCK},
-		(struct table){.str = "if", .tp = KEYWORD_IF},
+		(struct table){.str = "+", .tp = OPERATOR_PLUS},
+		(struct table){.str = "-", .tp = OPERATOR_MINUS},
+		(struct table){.str = "==", .tp = OPERATOR_EQUAL},
 	};
 
-	for(unsigned long i = 0; i < sizeof(keywords_table) / sizeof(struct table); i++){
-		if(memcmp(str, keywords_table[i].str, strlen(keywords_table[i].str)) == 0){
-			return keywords_table[i].tp;
+	for(unsigned long i = 0; i < sizeof(tokens_table) / sizeof(struct table); i++){
+		if(memcmp(str, tokens_table[i].str, strlen(tokens_table[i].str)) == 0){
+			return tokens_table[i].tp;
 		}
 	}
 	

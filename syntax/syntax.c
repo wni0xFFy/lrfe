@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//write IF blocks
-
 typedef struct{
 	char* name;
 	int name_size;
@@ -21,6 +19,7 @@ typedef struct{
 
 error_t is_var(node_t node, dynamic_array_t* vars);
 error_t is_print(node_t node, dynamic_array_t* vars);
+error_t is_if(node_t node, dynamic_array_t* vars);
 variable_t* check_var(dynamic_array_t vars, token_t var);
 
 int syntax_checker(dynamic_array_t* _nodes){
@@ -30,6 +29,7 @@ int syntax_checker(dynamic_array_t* _nodes){
 	error_t (*checkers[]) (node_t node, dynamic_array_t* vars) = {
 		is_var,	
 		is_print,
+		is_if,
 	};
 
    for(node_t* node = nodes; node < nodes + _nodes->size ; node++){
@@ -84,6 +84,36 @@ error_t is_print(node_t node, dynamic_array_t* vars){
 
 	return (error_t){.code = 2, .msg = "invalid 'print' using"};
  }
+
+error_t is_if(node_t node, dynamic_array_t* vars){
+	if(node.token.type != KEYWORD_IF) {
+		return (error_t){.code = 0, .msg = 0}; 
+	}
+
+	//checking for avoid segfault below
+	if(node.args_count != 2) {
+		return (error_t){.code = 2, .msg = "invalid 'if' using"};
+	}
+
+	//checking is argument variable and does that var exists
+	if(node.args[0].type == VARIABLE){
+		variable_t* var = check_var(*vars, node.args[0]);
+		if(var == NULL) return (error_t){.code = 2, .msg = "unknown variable."};
+	}
+	else {
+		return (error_t){.code = 2, .msg = "invalid 'if' using"};
+	}
+
+	if(node.args[1].type != NUM_LITERAL){
+		return (error_t){.code = 2, .msg = "invalid 'if' using"};
+	}
+	//checking does this if has code block
+	if(node.child_count < 1){		
+		return (error_t){.code = 2, .msg = "invalid 'if' using"};
+	}
+
+	return (error_t){.code = 1, .msg = 0};
+}
 
 variable_t* check_var(dynamic_array_t vars, token_t var){
 	variable_t* v = vars.data;

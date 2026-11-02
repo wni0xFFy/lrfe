@@ -1,15 +1,26 @@
 #pragma once
 #include <coreutils.h>
+//maybe add limits(like OPERATOR_GROUP_START)
+
 typedef enum{
+	OPERATOR_PLUS,
+	OPERATOR_MINUS,
+	OPERATOR_EQUAL,
+	//add fewer and greater
+
 	OPEN_CODE_BLOCK,
 	CLOSE_CODE_BLOCK,
+
 	NEWLINE,
 	FUNCTION,
 	NUM_LITERAL,
 	VARIABLE,
+
+	KEYWORDS_GROUP_START,
 	KEYWORD_VAR,
 	KEYWORD_PRINT,
 	KEYWORD_IF,
+	KEYWORDS_GROUP_END,
 } token_type;
 
 typedef struct{

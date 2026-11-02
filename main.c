@@ -16,24 +16,31 @@ int main(){
 	buffer[s - 1] = '\n';
 
 	dynamic_array_t c = tokens(buffer, s);
-	view_tokens(c);
-	//dynamic_array_t n = nodes(&c);
-	
-	//syntax_checker(&n);
+	//view_tokens(c);
+	dynamic_array_t n = nodes(&c);
+
+	node_t* nds = n.data;
+	//if(nds[1].child_count < 1) fprintf(stdout, "SSSSTOOOOOOOP");
+	syntax_checker(&n);
 }
 
 void view_tokens(dynamic_array_t tokens){
 	token_t* tks = tokens.data;
-	char* text_impl[] = {
+	char* text_impl[] = { 
+		"PLUS",
+		"MINUS",
+		"EQUAL",
 		"OPEN-BRACKET",
 		"CLOSE-BRACKET",
 		"NEWLINE\n",
 		"FUNCTION",
-		"NUM_LITERAL",
+		"NUM-LITERAL",
 		"VARIABLE",
+		"gs",
 		"KEYWORD-VAR",
 		"KEYWORD-PRINT",
 		"KEYWORD-IF",
+		"ge",
 	};
 
 	for(int i = 0; i < tokens.size; i++){

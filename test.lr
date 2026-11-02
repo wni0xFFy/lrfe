@@ -1,1 +1,5 @@
-if z 10
+var x 10 
+if x 1{
+   var z 10
+   print x
+}
