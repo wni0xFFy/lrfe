@@ -22,6 +22,14 @@ int main(){
 	node_t* nds = n.data;
 	//if(nds[1].child_count < 1) fprintf(stdout, "SSSSTOOOOOOOP");
 	syntax_checker(&n);
+	free(buffer);
+
+	for(int i = 0; i < n.size; i++){
+			free(nds[i].child);
+	}
+
+	delete_array(c);
+	delete_array(n);
 }
 
 void view_tokens(dynamic_array_t tokens){

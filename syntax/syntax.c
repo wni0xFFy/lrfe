@@ -43,6 +43,7 @@ int syntax_checker(dynamic_array_t* _nodes){
    			}
    		}
 	}
+	delete_array(vars);
 	return 1;
 }
 

@@ -5,3 +5,5 @@ typedef struct{
 	int size;
 	int capacity;	
 } dynamic_array_t;
+
+int delete_array(dynamic_array_t arr);
