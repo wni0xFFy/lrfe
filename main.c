@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <parser.h>
 #include <syntax.h>
+#include <codegen.h>
 
 void view_tokens(dynamic_array_t tokens);
 
@@ -22,6 +23,9 @@ int main(){
 	node_t* nds = n.data;
 	//if(nds[1].child_count < 1) fprintf(stdout, "SSSSTOOOOOOOP");
 	syntax_checker(&n);
+	gen_node(n);
+
+	
 	free(buffer);
 
 	for(int i = 0; i < n.size; i++){

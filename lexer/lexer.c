@@ -16,7 +16,6 @@ dynamic_array_t tokens(char* input, long file_size){
 	arr.size = 0;
 	arr.data = (token_t*)malloc(arr.capacity * sizeof(token_t));
 
-
 	char* last_token_start = input;
 
 	for(int i = 0; i < file_size; i++){
@@ -32,7 +31,7 @@ dynamic_array_t tokens(char* input, long file_size){
 			((token_t*)arr.data)[arr.size] = (token_t){
 				.type = tk, 
 				.str_view = last_token_start, 
-				.str_view_lenght = (input + i) - last_token_start
+				.str_view_lenght = (input + i) - last_token_start,	
 			};
 			
 			arr.size++;
