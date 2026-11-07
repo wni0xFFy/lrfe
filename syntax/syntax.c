@@ -93,7 +93,7 @@ error_t is_if(node_t node, dynamic_array_t* vars){
 	}
 
 	//checking for avoid segfault below
-	if(node.args_count != 2) {
+	if(node.args_count != 3) {
 		return (error_t){.code = 2, .msg = "invalid 'if' using"};
 	}
 
@@ -106,11 +106,15 @@ error_t is_if(node_t node, dynamic_array_t* vars){
 		return (error_t){.code = 2, .msg = "invalid 'if' using"};
 	}
 
-	if(node.args[1].type != NUM_LITERAL){
+	if(node.args[2].type == VARIABLE){
+		variable_t* var = check_var(*vars, node.args[2]);
+		if(var == NULL) return (error_t){.code = 2, .msg = "unknown variable."};
+	}
+	else {
 		return (error_t){.code = 2, .msg = "invalid 'if' using"};
 	}
-	//checking does this if has code block
-	if(node.child_count < 1){		
+
+	if(node.args[1].type != OPERATOR_EQUAL || node.child_count < 1){
 		return (error_t){.code = 2, .msg = "invalid 'if' using"};
 	}
 

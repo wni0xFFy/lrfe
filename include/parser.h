@@ -14,4 +14,3 @@ typedef struct node_t{
 } node_t;
 
 dynamic_array_t nodes(dynamic_array_t* tokens); 
-int check_keyword(dynamic_array_t arr, int keyword_index);

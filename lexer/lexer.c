@@ -4,9 +4,9 @@
 #include <string.h>
 #include <coreutils.h>
 #include <ctype.h>
-
+#include <stdint.h>
 token_type id(char* str, int len);
-int len(char* str);
+int len(char* str); 
 uint8_t is_numeric_literal(char* str, int len);
 
 dynamic_array_t tokens(char* input, long file_size){
