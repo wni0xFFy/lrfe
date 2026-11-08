@@ -1,4 +1,5 @@
 #include "_internal_codegen.h"
+#include <codegen.h>
 #include <coreutils.h>
 #include <parser.h>
 #include <stdint.h>

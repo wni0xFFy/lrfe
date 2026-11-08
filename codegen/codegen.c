@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct{
 	uint8_t* bytes;
@@ -38,25 +39,21 @@ instruction_t generate_var_creation(dynamic_array_t vars, node_t node);
 instruction_t generate_if(dynamic_array_t vars, node_t node);
 instruction_t generate_mov_r8m(dynamic_array_t vars,register_8_bit_t reg, token_t var);
 
-uint16_t gen_node(dynamic_array_t nodes){
-	dynamic_array_t vars = give_adresses(nodes);
-
-	node_t* nds = nodes.data;
-	for(int i = 0; i < nodes.size; i++){
-		switch(nds[i].token.type){
-			case KEYWORD_VAR:
-				instruction_t add_instruction = generate_var_creation(vars, nds[i]);
-				for(int i = 0; i < 4; i++) fprintf(stdout, "%x ", add_instruction.bytes[i]);
-				fprintf(stdout, "\n");
-				break;
-			case KEYWORD_IF:
-				generate_if(vars, nds[i]);
-				break;
-			default:
-				fprintf(stdout, "Node can't be compilated\n");
-		}
+uint8_t gen_node(dynamic_array_t instructions, dynamic_array_t vars, node_t node){
+	instruction_t inst = {0};
+	switch(node.token.type){
+		case KEYWORD_VAR:
+			inst = generate_var_creation(vars, node);
+			for(int i = 0; i < 4; i++) fprintf(stdout, "%x ", inst.bytes[i]);
+			fprintf(stdout, "\n");
+			break;
+		case KEYWORD_IF:
+			inst = generate_if(vars, node);
+			break;
+		default:
+			fprintf(stdout, "Node can't be compilated\n");
 	}
-	return 0;
+	return inst.instruction_size;
 }
 
 instruction_t generate_var_creation(dynamic_array_t vars, node_t node){
@@ -70,28 +67,36 @@ instruction_t generate_var_creation(dynamic_array_t vars, node_t node){
 
 
 instruction_t generate_if(dynamic_array_t vars, node_t node){
-	
-	instruction_t a = generate_mov_r8m(vars, AH, node.args[0]);
-	for(int i = 0; i < a.instruction_size; i++) fprintf(stdout, "%x ", a.bytes[i]);
-	fprintf(stdout, "\n");
-	fprintf(stdout, "NEXT REGISTER\n");
-	a = generate_mov_r8m(vars, AL, node.args[2]);
-	for(int i = 0; i < a.instruction_size; i++) fprintf(stdout, "%x ", a.bytes[i]);
-	fprintf(stdout, "\n");
+	instruction_t  generated_if = generate_mov_r8m(vars, AL, node.args[0]);
+	instruction_t tmp_instruction = generate_mov_r8m(vars, AH, node.args[2]);
+
+	generated_if.bytes = realloc(generated_if.bytes, generated_if.instruction_size + tmp_instruction.instruction_size + 4);
+	memcpy(generated_if.bytes + generated_if.instruction_size, tmp_instruction.bytes, tmp_instruction.instruction_size);
+	generated_if.instruction_size += tmp_instruction.instruction_size;
+
+	generated_if.bytes[generated_if.instruction_size] = 0x38;
+	generated_if.bytes[generated_if.instruction_size + 1] = 0xE0;
+	generated_if.bytes[generated_if.instruction_size + 2] = 0x75; //JNE opcode
+	generated_if.bytes[generated_if.instruction_size + 3] = 0xFF; //placeholder for JNE
+	generated_if.instruction_size += 4;
+
 	/*
 		---if part should be like this--
 		push rax 
 
 		mov ah, [rbp - offset]
 		mov al, [rbp - offset-2]
+		cmp ah, al # 0x38 0b11100000 
 
-		cmp ah, al
 		pop rax
 		jne brk
 		--PART WITH CHILD NODES--
 		brk:
 	*/
-	return (instruction_t){.bytes = 0, .instruction_size = 0};
+	for(int i = 0; i < generated_if.instruction_size; i++){
+		fprintf(stdout, "%x ", generated_if.bytes[i]);
+	}
+	return generated_if;
 }
 
 //rm - means from memory(variable) to r8

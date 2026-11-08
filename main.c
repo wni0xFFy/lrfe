@@ -19,11 +19,14 @@ int main(){
 	dynamic_array_t c = tokens(buffer, s);
 	//view_tokens(c);
 	dynamic_array_t n = nodes(&c);
-
+	dynamic_array_t ins = {0};
 	node_t* nds = n.data;
 	//if(nds[1].child_count < 1) fprintf(stdout, "SSSSTOOOOOOOP");
 	syntax_checker(&n);
-	gen_node(n);
+	dynamic_array_t vars = give_adresses(n);
+	for(int i = 0; i < n.size; i++){
+		gen_node(ins,vars,nds[i]);
+	}
 
 	
 	free(buffer);

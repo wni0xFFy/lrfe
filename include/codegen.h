@@ -2,5 +2,7 @@
 
 #include <coreutils.h>
 #include <stdint.h>
+#include <parser.h>
 
-uint16_t gen_node(dynamic_array_t nodes);
+uint8_t gen_node(dynamic_array_t instructions, dynamic_array_t vars, node_t node);
+dynamic_array_t give_adresses(dynamic_array_t nodes);

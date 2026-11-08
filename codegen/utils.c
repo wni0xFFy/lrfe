@@ -1,6 +1,7 @@
 #include "_internal_codegen.h"
 #include <string.h>
 #include <stdint.h>
+#include <codegen.h>
 #include <stdlib.h>
 #include <lexer.h>
 
