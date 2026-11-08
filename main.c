@@ -17,18 +17,30 @@ int main(){
 	buffer[s - 1] = '\n';
 
 	dynamic_array_t c = tokens(buffer, s);
-	//view_tokens(c);
 	dynamic_array_t n = nodes(&c);
 	dynamic_array_t ins = {0};
 	dynamic_array_t vrs = (dynamic_array_t){.data = malloc(1024), .capacity = 16, .size = 0};
+	
 	node_t* nds = n.data;
 	//if(nds[1].child_count < 1) fprintf(stdout, "SSSSTOOOOOOOP");
 	syntax_checker(&n);
 	give_adresses(&vrs,n,0);
+	generate_init(&ins);
+
 	for(int i = 0; i < n.size; i++){
 		gen_node(&ins,&vrs,nds[i]);
 	}
+	
+	generate_exit(&ins);
+	dynamic_array_t bytes = create_elf_bytes(ins);
 
+	FILE* output = fopen("lr.elf", "wb");
+	uint8_t* bts = bytes.data;
+	fwrite(bts, 1, bytes.size, output);
+	fclose(output);
+	for(int i = 0; i < bytes.size; i++){
+		fprintf(stdout,"0x%x ", bts[i]);
+	}
 	
 	free(buffer);
 
@@ -38,6 +50,8 @@ int main(){
 
 	delete_array(c);
 	delete_array(n);
+	delete_array(vrs);
+	delete_array(ins);
 }
 
 void view_tokens(dynamic_array_t tokens){

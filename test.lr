@@ -1,7 +1,9 @@
-var x 0
-var z 48
-var y 10
+var x 33
+var y 36
 
-if x == z {
-    var xyz 255
+if x == y {
+    print y
 }
+
+print x
+print y
