@@ -8,52 +8,31 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct{
-	uint8_t* bytes;
-	uint8_t instruction_size;
-} instruction_t;
-
-typedef enum{
-	AL,
-	CL,
-	DL,
-	BL,
-	AH,
-	CH,
-	DH,
-	BH,
-} register_8_bit_t;
-
-typedef enum{
-	AX,
-	CX,
-	DX,
-	BX,
-	SP,
-	BP,
-	SI,
-	DI,
-} register_16_bit_t;
 
 instruction_t generate_var_creation(dynamic_array_t vars, node_t node);
-instruction_t generate_if(dynamic_array_t vars, node_t node);
+instruction_t generate_if_prologue(dynamic_array_t vars, node_t node);
 instruction_t generate_mov_r8m(dynamic_array_t vars,register_8_bit_t reg, token_t var);
 
-uint8_t gen_node(dynamic_array_t instructions, dynamic_array_t vars, node_t node){
-	instruction_t inst = {0};
+uint8_t gen_node(dynamic_array_t* instructions, dynamic_array_t* vars, node_t node){
+	instruction_t tmp_inst = {0};
 	switch(node.token.type){
 		case KEYWORD_VAR:
-			inst = generate_var_creation(vars, node);
-			for(int i = 0; i < 4; i++) fprintf(stdout, "%x ", inst.bytes[i]);
+			tmp_inst = generate_var_creation(*vars, node);
+			push_instruction(instructions, tmp_inst);
+			for(int i = 0; i < 4; i++) fprintf(stdout, "%x ", tmp_inst.bytes[i]);
 			fprintf(stdout, "\n");
 			break;
 		case KEYWORD_IF:
-			inst = generate_if(vars, node);
+			tmp_inst = generate_if_prologue(*vars, node);
+			push_instruction(instructions, tmp_inst);
+			for(int i = 0; i < node.child_count; i++){
+				gen_node(instructions, vars, node.child[i]);
+			}
 			break;
 		default:
 			fprintf(stdout, "Node can't be compilated\n");
 	}
-	return inst.instruction_size;
+	return tmp_inst.instruction_size;
 }
 
 instruction_t generate_var_creation(dynamic_array_t vars, node_t node){
@@ -66,7 +45,7 @@ instruction_t generate_var_creation(dynamic_array_t vars, node_t node){
 }
 
 
-instruction_t generate_if(dynamic_array_t vars, node_t node){
+instruction_t generate_if_prologue(dynamic_array_t vars, node_t node){
 	instruction_t  generated_if = generate_mov_r8m(vars, AL, node.args[0]);
 	instruction_t tmp_instruction = generate_mov_r8m(vars, AH, node.args[2]);
 
@@ -74,8 +53,8 @@ instruction_t generate_if(dynamic_array_t vars, node_t node){
 	memcpy(generated_if.bytes + generated_if.instruction_size, tmp_instruction.bytes, tmp_instruction.instruction_size);
 	generated_if.instruction_size += tmp_instruction.instruction_size;
 
-	generated_if.bytes[generated_if.instruction_size] = 0x38;
-	generated_if.bytes[generated_if.instruction_size + 1] = 0xE0;
+	generated_if.bytes[generated_if.instruction_size] = 0x38; //CMP opcode
+	generated_if.bytes[generated_if.instruction_size + 1] = 0xE0; //modr/m for cmp(means that we compare al and ah 8 bit registers)
 	generated_if.bytes[generated_if.instruction_size + 2] = 0x75; //JNE opcode
 	generated_if.bytes[generated_if.instruction_size + 3] = 0xFF; //placeholder for JNE
 	generated_if.instruction_size += 4;

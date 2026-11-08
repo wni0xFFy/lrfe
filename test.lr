@@ -1,6 +1,7 @@
 var x 0
 var z 48
+var y 10
 
 if x == z {
-    print z
+    var xyz 255
 }
