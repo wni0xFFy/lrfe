@@ -4,11 +4,11 @@ var x 10
 
 ```
 
-# if statements - cmp
+# if statements 
 
 ``` LR
 
-cmp x 10 {
+if x == 10 {
 
 }
 

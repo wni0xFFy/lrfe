@@ -1,8 +1,13 @@
 var x 33
 var y 36
+var z 33
 
 if x == y {
     print y
+}
+
+if z == x {
+    print z
 }
 
 print x
