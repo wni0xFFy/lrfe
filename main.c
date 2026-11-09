@@ -6,9 +6,15 @@
 #include <codegen.h>
 
 void view_tokens(dynamic_array_t tokens);
+void cut_str(char* str);
 
-int main(){
-	FILE* f = fopen("test.lr", "rb");
+int main(int argc, char* argv[]){
+	if(argc < 2) {
+		fprintf(stdout, "no input files\n");
+		return -1;
+	}
+	
+	FILE* f = fopen(argv[1], "rb");
 	fseek(f, 0, SEEK_END);
 	int s = ftell(f) + 1;
 	rewind(f);
@@ -22,7 +28,6 @@ int main(){
 	dynamic_array_t vrs = (dynamic_array_t){.data = malloc(1024), .capacity = 16, .size = 0};
 	
 	node_t* nds = n.data;
-	//if(nds[1].child_count < 1) fprintf(stdout, "SSSSTOOOOOOOP");
 	syntax_checker(&n);
 	give_adresses(&vrs,n,0);
 	generate_init(&ins);
@@ -34,7 +39,8 @@ int main(){
 	generate_exit(&ins);
 	dynamic_array_t bytes = create_elf_bytes(ins);
 
-	FILE* output = fopen("lr.elf", "wb");
+	cut_str(argv[1]);
+	FILE* output = fopen(argv[1], "wb");
 	uint8_t* bts = bytes.data;
 	fwrite(bts, 1, bytes.size, output);
 	fclose(output);
@@ -76,4 +82,12 @@ void view_tokens(dynamic_array_t tokens){
 	for(int i = 0; i < tokens.size; i++){
 		fprintf(stdout, "%s ", text_impl[tks[i].type]);
 	}
+}
+
+void cut_str(char* str){
+	int i = 0;
+	while(str[i] != '.'){
+		i += 1;
+	}
+	str[i] = '\0';
 }
