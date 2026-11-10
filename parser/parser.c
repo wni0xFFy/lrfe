@@ -13,12 +13,14 @@ dynamic_array_t nodes(dynamic_array_t* tokens){
 	nodes.capacity = 16;
 	nodes.size = 0;
 	nodes.data = (node_t*)malloc(sizeof(node_t) * nodes.capacity);
-	node_t* nds = nodes.data;
 
 	for(int i = 0; i < tokens->size; i++){
 		if(tks[i].type == FUNCTION || is_keyword(tks[i])){
-			nds[nodes.size] = assembly_arguments(tks, &i, tokens->size);
+			((node_t*)nodes.data)[nodes.size] = assembly_arguments(tks, &i, tokens->size);
 			nodes.size++;
+			if(nodes.size == nodes.capacity){
+				check_array_capacity(&nodes, sizeof(node_t));
+			}
 		}
 	}
 	return nodes;

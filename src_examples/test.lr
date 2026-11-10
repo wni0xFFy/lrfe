@@ -1,210 +1,87 @@
-var x 33
-var y 36
-var z 33
+var e32 32
+var e33 33
+var e65 65
+var e66 66
+var e67 67
+var e68 68
+var e69 69
+var e72 72
+var e76 76
+var e79 79
+var e81 81
+var e82 82
+var e87 87
+var e88 88
+var e89 89
+var e90 90
 
-if x == y {
-    print y
+var H 72
+var E 69
+var L 76
+var O 79
+var SP 32
+var W 87
+var R 82
+var D 68
+var EX 33
+var A 65
+var B 66
+var C 67
+var Q 81
+var X 88
+var Y 89
+var Z 90
+
+if H == e72 { print H }
+if E == e69 { print E }
+if L == e76 { print L }
+if L == e76 { print L }
+if O == e79 { print O }
+if SP == e32 { print SP }
+
+if W == e87 { print W }
+if O == e79 { print O }
+if R == e82 { print R }
+if L == e76 { print L }
+if D == e68 { print D }
+if EX == e33 { print EX }
+print SP
+
+if H == e72 {
+    if E == e69 {
+        print H
+        print E
+    }
 }
 
-if z == x {
-    print z
+if L == e76 {
+    if O == e79 {
+        print L
+        print O
+    }
 }
 
-print x
-print y
-var x 33
-var y 36
-var z 33
 
-if x == y {
-    print y
+if A == e65 { print A }
+if B == e66 { print B }
+if C == e67 { print C }
+if Q == e81 { print Q }
+
+
+if X == e88 {
+    if Y == e89 {
+        if Z == e90 {
+            print Z
+            print Y
+            print X
+        }
+    }
 }
 
-if z == x {
-    print z
-}
+if H == e65 { print H }
+if E == e66 { print E }
+if L == e67 { print L }
+if O == e65 { print O }
 
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
-var x 33
-var y 36
-var z 33
-
-if x == y {
-    print y
-}
-
-if z == x {
-    print z
-}
-
-print x
-print y
+if A == e65 { print A }
+if Z == e90 { print Z }

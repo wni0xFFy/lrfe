@@ -10,7 +10,6 @@ const int MINIMAL_TOKENS_COUNT = 16;
 
 token_type id(char* str, unsigned long len);
 inline uint8_t is_numeric_literal(char* str, unsigned long len);
-inline uint8_t check_array_capacity(dynamic_array_t* arr);
 inline void push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght);
 
 dynamic_array_t* tokens(char* input, unsigned long file_size){
@@ -23,7 +22,7 @@ dynamic_array_t* tokens(char* input, unsigned long file_size){
 		if(input[i] == '\n' || input[i] == ' '){
 			token_type tk = id(last_token_start, (input + i) - last_token_start);
 			
-			if(check_array_capacity(arr)) return NULL;
+			if(check_array_capacity(arr, sizeof(token_t))) return NULL;
 
 			push_token(arr, tk, last_token_start, (input + i) - last_token_start);
 
@@ -70,7 +69,6 @@ token_type id(char* str, unsigned long len){
 	return is_numeric_literal(str, len) ? NUM_LITERAL : VARIABLE;
 }
 
-
 inline uint8_t is_numeric_literal(char* str, unsigned long len){
 	for(unsigned long idx = 0; idx < len; idx++){
 		if(!isdigit(str[idx])) return 0;
@@ -78,15 +76,6 @@ inline uint8_t is_numeric_literal(char* str, unsigned long len){
 	return 1;
 }
 
-inline uint8_t check_array_capacity(dynamic_array_t* arr){
-	if(arr->size >= arr->capacity){
-		token_t* tmp = realloc(arr->data, sizeof(token_t) * (arr->size + 16));
-		if(tmp == NULL) return 1;
-		arr->data = tmp;
-		arr->capacity = arr->size + 16;
-	}
-	return 0;
-}
 
 inline void push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght){
 	((token_t*)arr->data)[arr->size] = (token_t){

@@ -25,7 +25,6 @@ int main(int argc, char* argv[]){
 	dynamic_array_t* c = tokens(buffer, s);
 	if(c == NULL) {fprintf(stdout,"not enough memory\n"); return 1;}
 	view_tokens(*c);
-	//return 0;
 	dynamic_array_t n = nodes(c);
 	dynamic_array_t ins = {0};
 	dynamic_array_t vrs = (dynamic_array_t){.data = malloc(1024), .capacity = 16, .size = 0};
