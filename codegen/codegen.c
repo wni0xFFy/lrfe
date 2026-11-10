@@ -13,18 +13,6 @@ instruction_t generate_var_creation(dynamic_array_t vars, node_t node);
 instruction_t generate_if_prologue(dynamic_array_t vars, node_t node);
 instruction_t generate_print(dynamic_array_t vars, node_t node);
 
-uint8_t generate_init(dynamic_array_t* instructions){
-	push_instruction(instructions, generate_mov_r64r64(NULL, RSP, RBP));
-	return 0;
-}
-
-uint8_t generate_exit(dynamic_array_t* instructions){
-	push_instruction(instructions,generate_mov_r64b(NULL, RAX, 60));
-	push_instruction(instructions,generate_mov_r64b(NULL, RDI, 0));
-	push_instruction(instructions,generate_syscall(NULL));
-	return 0;
-}
-
 uint8_t gen_node(dynamic_array_t* instructions, dynamic_array_t* vars, node_t node){
 	instruction_t tmp_inst = {0};
 	switch(node.token.type){
@@ -102,4 +90,16 @@ instruction_t generate_print(dynamic_array_t vars, node_t node){
 	generate_lea_r64m(vars, &inst, RSI, node.args[0]);
 	generate_syscall(&inst);
 	return inst;
+}
+
+uint8_t generate_init(dynamic_array_t* instructions){
+	push_instruction(instructions, generate_mov_r64r64(NULL, RSP, RBP));
+	return 0;
+}
+
+uint8_t generate_exit(dynamic_array_t* instructions){
+	push_instruction(instructions,generate_mov_r64b(NULL, RAX, 60));
+	push_instruction(instructions,generate_mov_r64b(NULL, RDI, 0));
+	push_instruction(instructions,generate_syscall(NULL));
+	return 0;
 }

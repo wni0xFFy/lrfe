@@ -8,19 +8,22 @@
 
 const int MINIMAL_TOKENS_COUNT = 16;
 
-token_type id(char* str, unsigned long len);
+token_type identificate_token_type(char* str, unsigned long len);
 inline uint8_t is_numeric_literal(char* str, unsigned long len);
 inline void push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght);
+void ffsymbol(char** str, unsigned int* len);
 
 dynamic_array_t* tokens(char* input, unsigned long file_size){
 	dynamic_array_t* arr = malloc(sizeof(dynamic_array_t));
 	*arr = create_array(MINIMAL_TOKENS_COUNT, sizeof(token_t));
 
+	ffsymbol(&input, (unsigned int*)&file_size);
+	
 	char* last_token_start = input;
 
 	for(unsigned long i = 0; i < file_size; i++){
 		if(input[i] == '\n' || input[i] == ' '){
-			token_type tk = id(last_token_start, (input + i) - last_token_start);
+			token_type tk = identificate_token_type(last_token_start, (input + i) - last_token_start);
 			
 			if(check_array_capacity(arr, sizeof(token_t))) return NULL;
 
@@ -40,7 +43,7 @@ dynamic_array_t* tokens(char* input, unsigned long file_size){
 }
 
 
-token_type id(char* str, unsigned long len){
+token_type identificate_token_type(char* str, unsigned long len){
 	if(str[0] == '@') return FUNCTION;
 	
 	struct table{
@@ -76,7 +79,6 @@ inline uint8_t is_numeric_literal(char* str, unsigned long len){
 	return 1;
 }
 
-
 inline void push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght){
 	((token_t*)arr->data)[arr->size] = (token_t){
 		.type = type, 
@@ -84,4 +86,12 @@ inline void push_token(dynamic_array_t* arr, token_type type, char* token_str, i
 		.str_view_lenght = token_lenght,
 	};
 	arr->size += 1;
+}
+
+void ffsymbol(char** str, unsigned int* len){
+	char* end = *str + *len;
+	while(*str < end && (**str == '\n' || **str == ' ')){
+		*str += 1; 
+		*len -= 1;
+	}
 }
