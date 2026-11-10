@@ -18,12 +18,15 @@ int main(int argc, char* argv[]){
 	fseek(f, 0, SEEK_END);
 	int s = ftell(f) + 1;
 	rewind(f);
-	char* buffer = malloc(s + 256);
+	char* buffer = malloc(s);
 	fread(buffer, 1, s, f);
 	buffer[s - 1] = '\n';
 
-	dynamic_array_t c = tokens(buffer, s);
-	dynamic_array_t n = nodes(&c);
+	dynamic_array_t* c = tokens(buffer, s);
+	if(c == NULL) {fprintf(stdout,"not enough memory\n"); return 1;}
+	view_tokens(*c);
+	//return 0;
+	dynamic_array_t n = nodes(c);
 	dynamic_array_t ins = {0};
 	dynamic_array_t vrs = (dynamic_array_t){.data = malloc(1024), .capacity = 16, .size = 0};
 	
@@ -54,7 +57,7 @@ int main(int argc, char* argv[]){
 			free(nds[i].child);
 	}
 
-	delete_array(c);
+	delete_array(*c);
 	delete_array(n);
 	delete_array(vrs);
 	delete_array(ins);

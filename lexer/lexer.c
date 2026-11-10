@@ -5,51 +5,34 @@
 #include <coreutils.h>
 #include <ctype.h>
 #include <stdint.h>
-token_type id(char* str, int len);
-int len(char* str); 
-uint8_t is_numeric_literal(char* str, int len);
 
-dynamic_array_t tokens(char* input, long file_size){
-	dynamic_array_t arr = {0};
+const int MINIMAL_TOKENS_COUNT = 16;
 
-	arr.capacity = 16;
-	arr.size = 0;
-	arr.data = (token_t*)malloc(arr.capacity * sizeof(token_t));
+token_type id(char* str, unsigned long len);
+inline uint8_t is_numeric_literal(char* str, unsigned long len);
+inline uint8_t check_array_capacity(dynamic_array_t* arr);
+inline void push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght);
+
+dynamic_array_t* tokens(char* input, unsigned long file_size){
+	dynamic_array_t* arr = malloc(sizeof(dynamic_array_t));
+	*arr = create_array(MINIMAL_TOKENS_COUNT, sizeof(token_t));
 
 	char* last_token_start = input;
 
-	for(int i = 0; i < file_size; i++){
+	for(unsigned long i = 0; i < file_size; i++){
 		if(input[i] == '\n' || input[i] == ' '){
 			token_type tk = id(last_token_start, (input + i) - last_token_start);
 			
-			if(arr.size + 2 >= arr.capacity){
-				token_t* tmp = realloc(arr.data, sizeof(token_t) * (arr.size + 16));
-				if(tmp != NULL) arr.data = tmp;
-				arr.capacity = arr.size + 16;
-			}
+			if(check_array_capacity(arr)) return NULL;
 
-			((token_t*)arr.data)[arr.size] = (token_t){
-				.type = tk, 
-				.str_view = last_token_start, 
-				.str_view_lenght = (input + i) - last_token_start,	
-			};
-			
-			arr.size++;
-			
-			int flag = 0;
-			while(input[i] == '\n' || input[i] == ' '){
-				if(input[i] == '\n' && !flag){
-					((token_t*)arr.data)[arr.size] = (token_t){
-						.type = NEWLINE, 
-						.str_view = NULL, 
-						.str_view_lenght = 0,
-					};
-					arr.size++;
-					flag = 1;
-				}
-				i++;
-			}
+			push_token(arr, tk, last_token_start, (input + i) - last_token_start);
 
+			while(i < file_size && input[i] == ' ') i++;
+			if(input[i] == '\n'){
+				push_token(arr, NEWLINE, NULL, 0);
+			}
+			while(i < file_size && (input[i] == '\n' || input[i] == ' ')) i++;
+			
 			last_token_start = input + i;
 		}
 	}
@@ -58,7 +41,7 @@ dynamic_array_t tokens(char* input, long file_size){
 }
 
 
-token_type id(char* str, int len){
+token_type id(char* str, unsigned long len){
 	if(str[0] == '@') return FUNCTION;
 	
 	struct table{
@@ -78,6 +61,7 @@ token_type id(char* str, int len){
 	};
 
 	for(unsigned long i = 0; i < sizeof(tokens_table) / sizeof(struct table); i++){
+		if(strlen(tokens_table[i].str) != len) continue;
 		if(memcmp(str, tokens_table[i].str, strlen(tokens_table[i].str)) == 0){
 			return tokens_table[i].tp;
 		}
@@ -86,15 +70,29 @@ token_type id(char* str, int len){
 	return is_numeric_literal(str, len) ? NUM_LITERAL : VARIABLE;
 }
 
-int len(char* str){
-	int i = 0;
-	while(str[i] != 0) i++;
-	return i;
-}
 
-uint8_t is_numeric_literal(char* str, int len){
-	for(int i = 0; i < len; i++){
-		if(!isdigit(str[i])) return 0;
+inline uint8_t is_numeric_literal(char* str, unsigned long len){
+	for(unsigned long idx = 0; idx < len; idx++){
+		if(!isdigit(str[idx])) return 0;
 	}
 	return 1;
+}
+
+inline uint8_t check_array_capacity(dynamic_array_t* arr){
+	if(arr->size >= arr->capacity){
+		token_t* tmp = realloc(arr->data, sizeof(token_t) * (arr->size + 16));
+		if(tmp == NULL) return 1;
+		arr->data = tmp;
+		arr->capacity = arr->size + 16;
+	}
+	return 0;
+}
+
+inline void push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght){
+	((token_t*)arr->data)[arr->size] = (token_t){
+		.type = type, 
+		.str_view = token_str, 
+		.str_view_lenght = token_lenght,
+	};
+	arr->size += 1;
 }
