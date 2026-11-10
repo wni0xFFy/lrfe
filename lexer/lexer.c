@@ -8,9 +8,9 @@
 
 const int MINIMAL_TOKENS_COUNT = 16;
 
-token_type identificate_token_type(char* str, unsigned long len);
+token_type identify_token_type(char* str, unsigned long len);
 inline uint8_t is_numeric_literal(char* str, unsigned long len);
-inline void push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght);
+inline uint8_t push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght);
 void ffsymbol(char** str, unsigned int* len);
 
 dynamic_array_t* tokens(char* input, unsigned long file_size){
@@ -18,20 +18,26 @@ dynamic_array_t* tokens(char* input, unsigned long file_size){
 	*arr = create_array(MINIMAL_TOKENS_COUNT, sizeof(token_t));
 
 	ffsymbol(&input, (unsigned int*)&file_size);
-	
+
 	char* last_token_start = input;
 
 	for(unsigned long i = 0; i < file_size; i++){
 		if(input[i] == '\n' || input[i] == ' '){
-			token_type tk = identificate_token_type(last_token_start, (input + i) - last_token_start);
+			token_type tk = identify_token_type(last_token_start, (input + i) - last_token_start);
 			
-			if(check_array_capacity(arr, sizeof(token_t))) return NULL;
-
-			push_token(arr, tk, last_token_start, (input + i) - last_token_start);
+			if(push_token(arr, tk, last_token_start, (input + i) - last_token_start)) {
+					delete_array(*arr);
+					free(arr);
+					return NULL;
+			}
 
 			while(i < file_size && input[i] == ' ') i++;
 			if(input[i] == '\n'){
-				push_token(arr, NEWLINE, NULL, 0);
+				if(push_token(arr, NEWLINE, NULL, 0)){
+					delete_array(*arr);
+					free(arr);
+					return NULL;
+				}
 			}
 			while(i < file_size && (input[i] == '\n' || input[i] == ' ')) i++;
 			
@@ -43,7 +49,7 @@ dynamic_array_t* tokens(char* input, unsigned long file_size){
 }
 
 
-token_type identificate_token_type(char* str, unsigned long len){
+token_type identify_token_type(char* str, unsigned long len){
 	if(str[0] == '@') return FUNCTION;
 	
 	struct table{
@@ -79,13 +85,15 @@ inline uint8_t is_numeric_literal(char* str, unsigned long len){
 	return 1;
 }
 
-inline void push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght){
+inline uint8_t push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght){
+	if(check_array_capacity(arr, sizeof(token_t))) return 1; 
 	((token_t*)arr->data)[arr->size] = (token_t){
 		.type = type, 
 		.str_view = token_str, 
 		.str_view_lenght = token_lenght,
 	};
 	arr->size += 1;
+	return 0;
 }
 
 void ffsymbol(char** str, unsigned int* len){
