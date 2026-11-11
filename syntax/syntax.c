@@ -21,31 +21,38 @@ error_t is_var(node_t node, dynamic_array_t* vars);
 error_t is_print(node_t node, dynamic_array_t* vars);
 error_t is_if(node_t node, dynamic_array_t* vars);
 variable_t* check_var(dynamic_array_t vars, token_t var);
+void check_syntax_node(int* current_line, int* errors_count, node_t node, dynamic_array_t* vars);
 
 int syntax_checker(dynamic_array_t* _nodes){
+	int errors_count = 0;
 	dynamic_array_t vars = {.data = malloc(sizeof(variable_t) * 32), .size = 0};
 
 	node_t* nodes = _nodes->data;
+
+    for(int i = 1; i <= _nodes->size; i++){
+   		check_syntax_node(&i, &errors_count, nodes[i - 1], &vars);
+	}
+	delete_array(vars);
+	return errors_count;
+}
+
+void check_syntax_node(int* current_line, int* errors_count, node_t node, dynamic_array_t* vars){
 	error_t (*checkers[]) (node_t node, dynamic_array_t* vars) = {
 		is_var,	
 		is_print,
 		is_if,
 	};
-
-	//optimize it with like jumps when check is true
-   for(node_t* node = nodes; node < nodes + _nodes->size ; node++){
-   		for(unsigned long i = 0; i < sizeof(checkers) / sizeof(checkers[0]); i++){
-   			error_t err = checkers[i](*node, &vars);
-   			if(err.code == 2) fprintf(stdout, "%s\n", err.msg);
-   			//else if(err.code != 0)
-   			for(int j = 0; j < node->child_count; j++){
-   				err = checkers[i](node->child[j], &vars);
-   				if(err.code == 2) fprintf(stdout, "%s\n", err.msg);
-   			}
-   		}
+	for(unsigned long j = 0; j < sizeof(checkers) / sizeof(checkers[0]); j++){
+		error_t err = checkers[j](node, vars);
+		if(err.code == 2){
+				fprintf(stdout, "line %d : %s\n", *current_line ,err.msg);
+				*errors_count += 1;
+		}
+   	}
+	for(int k = 0; k < node.child_count; k++){
+			*current_line += 1;
+			check_syntax_node(current_line, errors_count, node.child[k], vars);
 	}
-	delete_array(vars);
-	return 1;
 }
 
 error_t is_var(node_t node, dynamic_array_t* vars){
@@ -58,6 +65,9 @@ error_t is_var(node_t node, dynamic_array_t* vars){
 			if(check_var(*vars, node.args[0]) != NULL){
 				return (error_t){.code = 2, .msg = "variable already exists"};
 			}
+			
+			check_array_capacity(vars, sizeof(variable_t));
+			variables = vars->data;
 
 			variables[vars->size] = (variable_t){
 				.name = node.args[0].str_view, 
