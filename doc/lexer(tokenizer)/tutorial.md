@@ -19,7 +19,7 @@ I've cut some code, which isn't important now. Important part is working with in
 ```C
 identify_token_type(last_token_start, (input + i) - last_token_start);
 ```
-Definetly, it is function call. However, you got to understand the second argument in this call.
+Definetly, it is function call. However, you need to understand the second argument in this call.
 ``` C
     (input + i) - last_token_start
 ```
@@ -43,4 +43,4 @@ Here's the answer.
     last_token_start = input + i;   
 ```
 This part of code skips every space or extra lines and writes into last_token_start.. CURRENT TOKEN START! It might sound a little bit tricky.
- However, after this writing our for cycle weighs the symbol for next \n or space, which's mean that current token ends.
+However, after writing loop scans for next \n or space, which's mean that current token ends.
