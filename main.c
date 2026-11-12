@@ -69,7 +69,6 @@ void view_tokens(dynamic_array_t tokens){
 		"EQUAL",
 		"OPEN-BRACKET",
 		"CLOSE-BRACKET",
-		"UNCLOSED_CODE_BLOCK",
 		"NEWLINE\n",
 		"FUNCTION",
 		"NUM-LITERAL",
