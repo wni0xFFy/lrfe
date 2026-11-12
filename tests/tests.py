@@ -1,7 +1,8 @@
 from pathlib import Path
 import subprocess
 import os
-folder = Path("tests_sources/")
+
+folder = Path("tests/tests_sources/")
 
 files = [f for f in folder.iterdir() if f.is_file()]
 
@@ -11,7 +12,7 @@ failed_count = 0
 for f in files:
     if '.lr' in f.name :
         result = subprocess.run(
-            ["../lrfe", str(folder) + '/' + f.name],
+            ["./lrfe", str(folder) + '/' + f.name],
             capture_output=True,  
             text=True,           
             encoding="utf-8"

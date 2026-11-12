@@ -15,6 +15,7 @@ int main(int argc, char* argv[]){
 	}
 	
 	FILE* f = fopen(argv[1], "rb");
+	if(f == NULL) {fprintf(stdout,"%s can't open file\n", argv[1]); return 1;}
 	fseek(f, 0, SEEK_END);
 	int s = ftell(f) + 1;
 	rewind(f);
@@ -58,6 +59,7 @@ int main(int argc, char* argv[]){
 	delete_array(n);
 	delete_array(vrs);
 	delete_array(ins);
+	return 0;
 }
 
 void view_tokens(dynamic_array_t tokens){

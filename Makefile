@@ -2,7 +2,7 @@ TARGET = lrfe
 
 CC = clang
 
-CFLAGS =  -g -fsanitize=address -Wall -Wextra -O2 -I./include/
+CFLAGS =  -g  -Wall -Wextra -O2 -I./include/#-fsanitize=address
 BUILD_DIR = build
 BIN_DIR = bin
 
@@ -19,5 +19,7 @@ $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+test: 
+	@python3 tests/tests.py
 
 .PHONY: all
