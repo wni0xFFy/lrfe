@@ -3,7 +3,6 @@
 #include <lexer.h>
 #include <stdio.h>
 #include <coreutils.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -16,6 +15,18 @@ typedef struct{
 	char* msg;
 	int code;
 } error_t;
+
+/* 
+		template : {KEYWORD_VAR, NUM_LITERAL, STRING}
+		arguments count : 1
+		and it will works like
+		CHECK ARGUMENTS_COUNT 
+			IF ERROR:
+				CHECK OTHER(OFFSET ARGUMENT TO ARGUMENTS_COUNT)
+			OTHERWISE:
+				RETURN SUCCESS
+	
+*/
 
 error_t is_var(node_t node, dynamic_array_t* vars);
 error_t is_print(node_t node, dynamic_array_t* vars);
@@ -61,6 +72,7 @@ void check_syntax_node(int* current_line, int* errors_count, node_t node, dynami
 
 error_t is_var(node_t node, dynamic_array_t* vars){
 	variable_t* variables = vars->data;
+
 	if(node.token.type != KEYWORD_VAR) 
 		return (error_t){.code = 0, .msg = 0};
 

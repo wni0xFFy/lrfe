@@ -65,6 +65,8 @@ token_type identify_token_type(char* str, unsigned long len){
 		(struct table){.str = "{", .tp = OPEN_CODE_BLOCK},
 		(struct table){.str = "+", .tp = OPERATOR_PLUS},
 		(struct table){.str = "-", .tp = OPERATOR_MINUS},
+		(struct table){.str = "<", .tp = OPERATOR_FEWER},
+		(struct table){.str = ">", .tp = OPERATOR_GREATER},
 		(struct table){.str = "==", .tp = OPERATOR_EQUAL},
 	};
 

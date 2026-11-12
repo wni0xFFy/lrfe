@@ -7,6 +7,8 @@ typedef enum{
 	OPERATOR_PLUS,
 	OPERATOR_MINUS,
 	OPERATOR_EQUAL,
+	OPERATOR_FEWER,
+	OPERATOR_GREATER,
 	//add fewer and greater
 
 	OPEN_CODE_BLOCK,
