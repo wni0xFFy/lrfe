@@ -29,7 +29,6 @@ int main(int argc, char* argv[]){
 	dynamic_array_t n = nodes(c);
 	dynamic_array_t ins = {0};
 	dynamic_array_t vrs = (dynamic_array_t){.data = malloc(1024), .capacity = 16, .size = 0};
-	
 	node_t* nds = n.data;
 	if(syntax_checker(&n)){
 		fprintf(stdout, "Can't compile, errors.");
@@ -70,6 +69,7 @@ void view_tokens(dynamic_array_t tokens){
 		"EQUAL",
 		"OPEN-BRACKET",
 		"CLOSE-BRACKET",
+		"UNCLOSED_CODE_BLOCK",
 		"NEWLINE\n",
 		"FUNCTION",
 		"NUM-LITERAL",

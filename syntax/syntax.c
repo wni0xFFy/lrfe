@@ -37,6 +37,10 @@ int syntax_checker(dynamic_array_t* _nodes){
 }
 
 void check_syntax_node(int* current_line, int* errors_count, node_t node, dynamic_array_t* vars){
+	if(node.flags != 0){
+		fprintf(stdout, "line %d : unclosed block\n", *current_line);
+		*errors_count += 1;
+	}
 	error_t (*checkers[]) (node_t node, dynamic_array_t* vars) = {
 		is_var,	
 		is_print,
