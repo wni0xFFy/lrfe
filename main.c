@@ -4,6 +4,16 @@
 #include <parser.h>
 #include <syntax.h>
 #include <codegen.h>
+#include <string.h>
+
+typedef enum{
+	FULL,
+	TOKENS,
+	TOKENS_PARSING,
+	TOKENS_PARSING_SYNTAX,
+} workmode_t;
+
+workmode_t G_MODE = FULL;
 
 void view_tokens(dynamic_array_t tokens);
 void cut_str(char* str);
@@ -13,7 +23,21 @@ int main(int argc, char* argv[]){
 		fprintf(stdout, "no input files\n");
 		return -1;
 	}
-	
+	if(argc > 2){
+		struct table{
+			char* str;
+			workmode_t mode;
+		};
+
+		struct table tbl[] = {
+			(struct table){.str = "t", .mode = TOKENS},
+			(struct table){.str = "n", .mode = TOKENS_PARSING},
+			(struct table){.str = "s", .mode = TOKENS_PARSING_SYNTAX},
+		};
+		for(unsigned long i = 0; i < sizeof(tbl) / sizeof(struct table); i++){
+			if(memcmp(argv[2], tbl[i].str, 1) == 0) G_MODE = tbl[i].mode;
+		}
+	}
 	FILE* f = fopen(argv[1], "rb");
 	if(f == NULL) {fprintf(stdout,"%s can't open file\n", argv[1]); return 1;}
 	fseek(f, 0, SEEK_END);
@@ -23,21 +47,39 @@ int main(int argc, char* argv[]){
 	fread(buffer, 1, s, f);
 	buffer[s - 1] = '\n';
 
-	dynamic_array_t* c = tokens(buffer, s);
-	if(c == NULL) {fprintf(stdout,"not enough memory\n"); return 1;}
-	//view_tokens(*c);
-	dynamic_array_t n = nodes(c);
+	dynamic_array_t* tkens = tokens(buffer, s);
+	if(tkens == NULL){fprintf(stdout, "not enough memory\n"); return 1;}
+	dynamic_array_t ndes = {};
 	dynamic_array_t ins = {0};
-	dynamic_array_t vrs = (dynamic_array_t){.data = malloc(1024), .capacity = 16, .size = 0};
-	node_t* nds = n.data;
-	if(syntax_checker(&n)){
+	dynamic_array_t vrs = create_array(256, 1);
+
+	switch(G_MODE){
+		case TOKENS:
+			view_tokens(*tkens);
+			return 0;
+		case TOKENS_PARSING:
+			view_tokens(*tkens);
+			ndes = nodes(tkens);
+			return 0;
+		case TOKENS_PARSING_SYNTAX:
+			view_tokens(*tkens);
+			ndes = nodes(tkens);
+			return syntax_checker(&ndes);
+		default:
+			break;
+	}
+
+	ndes = nodes(tkens);
+	if(syntax_checker(&ndes)){
 		fprintf(stdout, "Can't compile, errors.");
 		return 1;
 	}
-	give_adresses(&vrs,n,0);
+
+	give_adresses(&vrs,ndes,0);
 	generate_init(&ins);
 
-	for(int i = 0; i < n.size; i++){
+	node_t* nds = ndes.data;
+	for(int i = 0; i < ndes.size; i++){
 		gen_node(&ins,&vrs,nds[i]);
 	}
 	
@@ -50,12 +92,10 @@ int main(int argc, char* argv[]){
 	fwrite(bts, 1, bytes.size, output);
 	fclose(output);
 
-	for(int i = 0; i < n.size; i++){
+	for(int i = 0; i < ndes.size; i++){
 			free(nds[i].child);
 	}
 	free(buffer);
-	delete_array(*c);
-	delete_array(n);
 	delete_array(vrs);
 	delete_array(ins);
 	return 0;
@@ -67,6 +107,8 @@ void view_tokens(dynamic_array_t tokens){
 		"PLUS",
 		"MINUS",
 		"EQUAL",
+		"FEWER",
+	    "OPERATOR_GREATER",
 		"OPEN-BRACKET",
 		"CLOSE-BRACKET",
 		"NEWLINE\n",
@@ -87,7 +129,7 @@ void view_tokens(dynamic_array_t tokens){
 
 void cut_str(char* str){
 	int i = 0;
-	while(str[i] != '.'){
+	while(str[i] != '.' && str[i] != '\0'){
 		i += 1;
 	}
 	str[i] = '\0';
