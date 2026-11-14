@@ -16,26 +16,23 @@ typedef struct{
 	int code;
 } error_t;
 
-/* 
-		template : {KEYWORD_VAR, NUM_LITERAL, STRING}
-		arguments count : 1
-		and it will works like
-		CHECK ARGUMENTS_COUNT 
-			IF ERROR:
-				CHECK OTHER(OFFSET ARGUMENT TO ARGUMENTS_COUNT)
-			OTHERWISE:
-				RETURN SUCCESS
-	
-*/
+typedef struct checking{
+		token_type tok;
+		uint8_t (*checker) (token_t token, dynamic_array_t* vars);
+} token_rule_t;
 
-error_t is_var(node_t node, dynamic_array_t* vars);
-error_t is_print(node_t node, dynamic_array_t* vars);
-error_t is_if(node_t node, dynamic_array_t* vars);
+typedef struct node_rule_t{
+	token_rule_t* rules;
+	int args_count;
+} node_rule_t;
+
+node_rule_t select_rule(token_t token);
 uint8_t check_var(token_t var, dynamic_array_t* vars);
 uint8_t check_push_var(token_t var, dynamic_array_t* vars);
 uint8_t check_placeholder();
 void check_syntax_node(int* current_line, int* errors_count, node_t node, dynamic_array_t* vars);
 uint8_t push_var(dynamic_array_t* vars, token_t var);
+error_t check_node(node_rule_t* rules, int rules_lenght,node_t node, dynamic_array_t* vars);
 
 int syntax_checker(dynamic_array_t* _nodes){
 	int errors_count = 0;
@@ -55,107 +52,64 @@ void check_syntax_node(int* current_line, int* errors_count, node_t node, dynami
 		fprintf(stdout, "line %d : unclosed block\n", *current_line);
 		*errors_count += 1;
 	}
-	// error_t (*checkers[]) (node_t node, dynamic_array_t* vars) = {
-	// 	is_var,	
-	// 	is_print,
-	// 	is_if,
-	// };
-	// for(unsigned long j = 0; j < sizeof(checkers) / sizeof(checkers[0]); j++){
-	// 	error_t err = checkers[j](node, vars);
-	// 	if(err.code == 2){
-	// 			fprintf(stdout, "line %d : %s\n", *current_line ,err.msg);
-	// 			*errors_count += 1;
-	// 	}
-   	// }
 
-	error_t err = {0};
-	switch(node.token.type){
-		case KEYWORD_VAR: err = is_var(node, vars); break;
-		case KEYWORD_PRINT: err = is_print(node, vars); break;
-		case KEYWORD_IF: err = is_if(node, vars); break;
-		default: fprintf(stdout, "unknown node type"); break;
-	}
+	node_rule_t rule = select_rule(node.token);
+	error_t err = check_node(&rule, 1, node, vars);
+
 	if(err.code == 2){
 			fprintf(stdout, "line %d : %s\n", *current_line ,err.msg);
 			*errors_count += 1;
 	}
 	for(int k = 0; k < node.child_count; k++){
-			*current_line += 1;
-			check_syntax_node(current_line, errors_count, node.child[k], vars);
+		*current_line += 1;
+		check_syntax_node(current_line, errors_count, node.child[k], vars);
 	}
 }
 
-error_t is_var(node_t node, dynamic_array_t* vars){
-	typedef struct checking{
-		token_type tok;
-		uint8_t (*checker) (token_t token, dynamic_array_t* vars);
-	} checking;
+node_rule_t select_rule(token_t token){
+	token_rule_t* var_token_rules = malloc(2 * sizeof(token_rule_t));
+	var_token_rules[0] = (token_rule_t){.checker = check_push_var, .tok = VARIABLE};
+	var_token_rules[1] = (token_rule_t){.checker = check_placeholder, .tok = NUM_LITERAL};
 
-	checking ch[] = {
-		(checking){.tok = VARIABLE, .checker = check_push_var},
-		(checking){.tok = NUM_LITERAL, .checker = check_placeholder},
+
+	token_rule_t* print_token_rules = malloc(1 * sizeof(token_rule_t));
+	print_token_rules[0] = (token_rule_t){.checker = check_var, .tok = VARIABLE};
+
+	token_rule_t* if_token_rules = malloc(3 * sizeof(token_rule_t));
+	if_token_rules[0] = (token_rule_t){.checker = check_var, .tok = VARIABLE};
+	if_token_rules[1] = (token_rule_t){.checker = check_placeholder, .tok = OPERATOR_EQUAL};
+	if_token_rules[2] = (token_rule_t){.checker = check_var, .tok = VARIABLE};
+
+	node_rule_t rules[] = {
+		(node_rule_t){.args_count = 2, .rules = var_token_rules},
+		(node_rule_t){.args_count = 1, .rules = print_token_rules},
+		(node_rule_t){.args_count = 3, .rules = if_token_rules},
 	};
-	token_type tmplt[] = {VARIABLE, NUM_LITERAL};
-	uint8_t needed_size = 2;
-	if(node.args_count != needed_size){
-		return (error_t){.code = 2, .msg = "invalid 'var' using"};
-	}
-
-	for(int i = 0; i < needed_size; i++){
-		if(node.args[i].type != tmplt[i]){
-			return (error_t){.code = 2, .msg = "invalid 'var' using"};
-		}
-		if(ch[i].checker(node.args[i], vars)){
-			return (error_t){.code = 2, .msg = "invalid 'var' using"};
-		}
-	}
-	return (error_t){.code = 1, .msg = 0};
+	
+	return rules[token.type - KEYWORDS_GROUP_START - 1];
 }
 
-error_t is_print(node_t node, dynamic_array_t* vars){
-	if(node.token.type != KEYWORD_PRINT) 
-		return (error_t){.code = 0, .msg = 0};
+error_t check_node(node_rule_t* rules, int rules_lenght,node_t node, dynamic_array_t* vars){
+	char* expected_token = 0;
 
-	if(node.args_count == 1){
-		if(node.args[0].type == VARIABLE) {
-			uint8_t err = check_var(node.args[0], vars);
-			if(!err) return (error_t){.code = 2, .msg = "unknown variable."};
-			else return (error_t){.code = 1, .msg=0};
+	for(int rule = 0; rule < rules_lenght; rule++){
+		node_rule_t curr_rule = rules[rule];
+		int is_correct = 0;
+		for(int i = 0; i < curr_rule.args_count; i++){
+			if(node.args[i].type != curr_rule.rules[i].tok){
+				expected_token = token_to_string(curr_rule.rules[i].tok);
+				is_correct = 0;
+				break;
+			}
+			if(curr_rule.rules[i].checker(node.args[i], vars)){return (error_t){.code = 2, .msg = "invalid using"};}
+			is_correct = 1;
 		}
-	}
 
-	return (error_t){.code = 2, .msg = "invalid 'print' using"};
- }
-
-error_t is_if(node_t node, dynamic_array_t* vars){
-	if(node.token.type != KEYWORD_IF) {
-		return (error_t){.code = 0, .msg = 0}; 
-	}
-
-	//checking for avoid segfault below
-	if(node.args_count != 3) {
-		return (error_t){.code = 2, .msg = "invalid 'if' using"};
-	}
-
-	//checking is argument variable and does that var exists
-	if(node.args[0].type == VARIABLE){
-		uint8_t err = check_var(node.args[0], vars);
-		if(!err) return (error_t){.code = 2, .msg = "unknown variable."};
-	}
-	else {
-		return (error_t){.code = 2, .msg = "invalid 'if' using"};
-	}
-
-	if(node.args[2].type == VARIABLE){
-		uint8_t err = check_var(node.args[2], vars);
-		if(!err) return (error_t){.code = 2, .msg = "unknown variable."};
-	}
-	else {
-		return (error_t){.code = 2, .msg = "invalid 'if' using"};
-	}
-
-	if(node.args[1].type != OPERATOR_EQUAL || node.child_count < 1){
-		return (error_t){.code = 2, .msg = "invalid 'if' using"};
+		if(rule + 1 == rules_lenght && is_correct == 0){
+			char* error_msg = malloc(1024);
+			snprintf(error_msg, 1024, "invalid %.*s using. Expected %s", node.token.str_view_lenght, node.token.str_view, expected_token);
+			return (error_t){.code = 2, .msg = error_msg};
+		}
 	}
 
 	return (error_t){.code = 1, .msg = 0};
@@ -165,15 +119,15 @@ uint8_t check_var(token_t var, dynamic_array_t* vars){
 	variable_t* v = vars->data;
 	for(int i = 0; i < vars->size; i++){
 		if(memcmp(v[i].name, var.str_view, var.str_view_lenght) == 0){
-			return 1;
+			return 0;
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 uint8_t check_push_var(token_t var, dynamic_array_t* vars){
-	if(check_var(var, vars) == 1) return 1;
+	if(check_var(var, vars) == 0) return 1;
 	push_var(vars, var);
 	return 0;
 }
