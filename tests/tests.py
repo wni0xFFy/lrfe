@@ -20,9 +20,11 @@ for f in files:
             text=True,           
             encoding="utf-8"
         )
+        
         if result.returncode != expected_return_codes[f.name]:
             print(f"[FAILED] {f.name} error: {result.stdout}")
             failed_count = failed_count + 1
+            
         elif result.returncode == 0:
             os.chmod(f"{str(folder) + '/' + Path(f.name).stem}", 755)
             res = subprocess.run(

@@ -31,8 +31,11 @@ typedef struct{
 error_t is_var(node_t node, dynamic_array_t* vars);
 error_t is_print(node_t node, dynamic_array_t* vars);
 error_t is_if(node_t node, dynamic_array_t* vars);
-variable_t* check_var(dynamic_array_t vars, token_t var);
+uint8_t check_var(token_t var, dynamic_array_t* vars);
+uint8_t check_push_var(token_t var, dynamic_array_t* vars);
+uint8_t check_placeholder();
 void check_syntax_node(int* current_line, int* errors_count, node_t node, dynamic_array_t* vars);
+uint8_t push_var(dynamic_array_t* vars, token_t var);
 
 int syntax_checker(dynamic_array_t* _nodes){
 	int errors_count = 0;
@@ -52,18 +55,30 @@ void check_syntax_node(int* current_line, int* errors_count, node_t node, dynami
 		fprintf(stdout, "line %d : unclosed block\n", *current_line);
 		*errors_count += 1;
 	}
-	error_t (*checkers[]) (node_t node, dynamic_array_t* vars) = {
-		is_var,	
-		is_print,
-		is_if,
-	};
-	for(unsigned long j = 0; j < sizeof(checkers) / sizeof(checkers[0]); j++){
-		error_t err = checkers[j](node, vars);
-		if(err.code == 2){
-				fprintf(stdout, "line %d : %s\n", *current_line ,err.msg);
-				*errors_count += 1;
-		}
-   	}
+	// error_t (*checkers[]) (node_t node, dynamic_array_t* vars) = {
+	// 	is_var,	
+	// 	is_print,
+	// 	is_if,
+	// };
+	// for(unsigned long j = 0; j < sizeof(checkers) / sizeof(checkers[0]); j++){
+	// 	error_t err = checkers[j](node, vars);
+	// 	if(err.code == 2){
+	// 			fprintf(stdout, "line %d : %s\n", *current_line ,err.msg);
+	// 			*errors_count += 1;
+	// 	}
+   	// }
+
+	error_t err = {0};
+	switch(node.token.type){
+		case KEYWORD_VAR: err = is_var(node, vars); break;
+		case KEYWORD_PRINT: err = is_print(node, vars); break;
+		case KEYWORD_IF: err = is_if(node, vars); break;
+		default: fprintf(stdout, "unknown node type"); break;
+	}
+	if(err.code == 2){
+			fprintf(stdout, "line %d : %s\n", *current_line ,err.msg);
+			*errors_count += 1;
+	}
 	for(int k = 0; k < node.child_count; k++){
 			*current_line += 1;
 			check_syntax_node(current_line, errors_count, node.child[k], vars);
@@ -71,31 +86,30 @@ void check_syntax_node(int* current_line, int* errors_count, node_t node, dynami
 }
 
 error_t is_var(node_t node, dynamic_array_t* vars){
-	variable_t* variables = vars->data;
+	typedef struct checking{
+		token_type tok;
+		uint8_t (*checker) (token_t token, dynamic_array_t* vars);
+	} checking;
 
-	if(node.token.type != KEYWORD_VAR) 
-		return (error_t){.code = 0, .msg = 0};
-
-	if(node.args_count == 2){
-		if(node.args[0].type == VARIABLE && node.args[1].type == NUM_LITERAL) {
-			if(check_var(*vars, node.args[0]) != NULL){
-				return (error_t){.code = 2, .msg = "variable already exists"};
-			}
-			
-			check_array_capacity(vars, sizeof(variable_t));
-			variables = vars->data;
-
-			variables[vars->size] = (variable_t){
-				.name = node.args[0].str_view, 
-				.name_size = node.args[0].str_view_lenght,
-			};
-			vars->size++;
-
-			return (error_t){.code = 1, .msg = 0};
-		}
+	checking ch[] = {
+		(checking){.tok = VARIABLE, .checker = check_push_var},
+		(checking){.tok = NUM_LITERAL, .checker = check_placeholder},
+	};
+	token_type tmplt[] = {VARIABLE, NUM_LITERAL};
+	uint8_t needed_size = 2;
+	if(node.args_count != needed_size){
+		return (error_t){.code = 2, .msg = "invalid 'var' using"};
 	}
 
-	return (error_t){.code = 2, .msg = "invalid 'var' using"};
+	for(int i = 0; i < needed_size; i++){
+		if(node.args[i].type != tmplt[i]){
+			return (error_t){.code = 2, .msg = "invalid 'var' using"};
+		}
+		if(ch[i].checker(node.args[i], vars)){
+			return (error_t){.code = 2, .msg = "invalid 'var' using"};
+		}
+	}
+	return (error_t){.code = 1, .msg = 0};
 }
 
 error_t is_print(node_t node, dynamic_array_t* vars){
@@ -104,9 +118,9 @@ error_t is_print(node_t node, dynamic_array_t* vars){
 
 	if(node.args_count == 1){
 		if(node.args[0].type == VARIABLE) {
-			variable_t* var = check_var(*vars, node.args[0]);
-			if(var != NULL) return (error_t){.code = 1, .msg = 0};
-			else return (error_t){.code = 2, .msg = "unknown variable."};
+			uint8_t err = check_var(node.args[0], vars);
+			if(!err) return (error_t){.code = 2, .msg = "unknown variable."};
+			else return (error_t){.code = 1, .msg=0};
 		}
 	}
 
@@ -125,16 +139,16 @@ error_t is_if(node_t node, dynamic_array_t* vars){
 
 	//checking is argument variable and does that var exists
 	if(node.args[0].type == VARIABLE){
-		variable_t* var = check_var(*vars, node.args[0]);
-		if(var == NULL) return (error_t){.code = 2, .msg = "unknown variable."};
+		uint8_t err = check_var(node.args[0], vars);
+		if(!err) return (error_t){.code = 2, .msg = "unknown variable."};
 	}
 	else {
 		return (error_t){.code = 2, .msg = "invalid 'if' using"};
 	}
 
 	if(node.args[2].type == VARIABLE){
-		variable_t* var = check_var(*vars, node.args[2]);
-		if(var == NULL) return (error_t){.code = 2, .msg = "unknown variable."};
+		uint8_t err = check_var(node.args[2], vars);
+		if(!err) return (error_t){.code = 2, .msg = "unknown variable."};
 	}
 	else {
 		return (error_t){.code = 2, .msg = "invalid 'if' using"};
@@ -147,13 +161,35 @@ error_t is_if(node_t node, dynamic_array_t* vars){
 	return (error_t){.code = 1, .msg = 0};
 }
 
-variable_t* check_var(dynamic_array_t vars, token_t var){
-	variable_t* v = vars.data;
-	for(int i = 0; i < vars.size; i++){
+uint8_t check_var(token_t var, dynamic_array_t* vars){
+	variable_t* v = vars->data;
+	for(int i = 0; i < vars->size; i++){
 		if(memcmp(v[i].name, var.str_view, var.str_view_lenght) == 0){
-			return v + i;
+			return 1;
 		}
 	}
 
-	return NULL;
+	return 0;
+}
+
+uint8_t check_push_var(token_t var, dynamic_array_t* vars){
+	if(check_var(var, vars) == 1) return 1;
+	push_var(vars, var);
+	return 0;
+}
+
+uint8_t push_var(dynamic_array_t* vars, token_t var){
+	check_array_capacity(vars, sizeof(variable_t));
+	variable_t* variables = vars->data;
+
+	variables[vars->size] = (variable_t){
+		.name = var.str_view, 
+		.name_size = var.str_view_lenght,
+	};
+	vars->size++;
+	return 0;
+}
+
+uint8_t check_placeholder(){
+	return 0;
 }
