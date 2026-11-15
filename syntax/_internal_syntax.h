@@ -14,12 +14,7 @@ typedef struct{
 } error_t;
 
 typedef struct{
-	token_type tok;
-	uint8_t (*checker) (token_t token, dynamic_array_t* vars);
-} token_rule_t;
-
-typedef struct{
-	const token_rule_t* rules;
+	const token_type* rules;
 	int args_count;
 	token_type token;
 } node_rule_t;
