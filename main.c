@@ -86,18 +86,22 @@ int main(int argc, char* argv[]){
 	generate_exit(&ins);
 	dynamic_array_t bytes = create_elf_bytes(ins);
 
+	//work with fille
 	cut_str(argv[1]);
 	FILE* output = fopen(argv[1], "wb");
 	uint8_t* bts = bytes.data;
 	fwrite(bts, 1, bytes.size, output);
 	fclose(output);
 
+	//cleaning
 	for(int i = 0; i < ndes.size; i++){
 			free(nds[i].child);
 	}
 	free(buffer);
 	delete_array(vrs);
 	delete_array(ins);
+	delete_array(ndes);
+	delete_array(bytes);
 	return 0;
 }
 
