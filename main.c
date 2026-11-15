@@ -5,7 +5,7 @@
 #include <syntax.h>
 #include <codegen.h>
 #include <string.h>
-
+#include <semantic.h>
 typedef enum{
 	FULL,
 	TOKENS,
@@ -74,7 +74,9 @@ int main(int argc, char* argv[]){
 		fprintf(stdout, "Can't compile, errors.");
 		return 1;
 	}
-
+	if(semantic_check(&ndes)){	
+			fprintf(stdout, "Semantic Errors.");
+	}
 	give_adresses(&vrs,ndes,0);
 	generate_init(&ins);
 
