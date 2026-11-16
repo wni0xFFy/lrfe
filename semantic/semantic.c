@@ -27,12 +27,16 @@ int semantic_check(dynamic_array_t* nodes){
 }
 
 int semantic_check_node(node_t node, dynamic_array_t* vars){
+    int reterro = 0;
     for(int i = 0; i < node.args_count; i++){
         if(node.args[i].type == VARIABLE){
-            if(!check_var(*vars, node.args[i])) return 1;
+            if(!check_var(*vars, node.args[i])) reterro += 1;
         }
     }
-    return 0;
+    for(int i = 0; i < node.child_count; i++){
+        reterro += semantic_check_node(node.child[i], vars);
+    }
+    return reterro;
 }
 
 dynamic_array_t* create_symbol_table(dynamic_array_t nds){

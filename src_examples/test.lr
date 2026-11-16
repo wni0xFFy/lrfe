@@ -1,1 +1,9 @@
-print x
+var x 10
+var y 10
+var j 16
+if x == y {
+    print j 
+    if x == y {
+        print j
+    }
+}
