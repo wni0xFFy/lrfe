@@ -1,13 +1,11 @@
-var x 10
-var y 10
-var j 16
 if x == y {
-    var z 10
-    if x == y {
-        var z 10
-        print z
-    }
-    print z
-}
+    var x 10
+    var y 10
 
-var p 17
+    if x == y {
+        var z 6
+        if x == y {
+            var xyz 10
+        }
+    }
+}
