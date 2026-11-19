@@ -13,9 +13,12 @@ int syntax_checker(node_t* root){
 	int errors_count = 0;
 
 	node_t* nodes = root->child;
-    for(int i = 1; i <= root->child_count; i++){
-   		check_syntax_node(&i, &errors_count, nodes[i - 1]);
+	int line = 0;
+    for(int i = 0; i <= root->child_count; i++){
+		line = i - 1;
+   		check_syntax_node(&line, &errors_count, nodes[i]);
 	}
+	
 	return errors_count;
 }
 
