@@ -7,7 +7,7 @@
 
 typedef struct{
     node_t node;
-    dynamic_array_t scope; //with variable_t
+    dynamic_array_t scope; //i think it will be like context
 } scoped_node_t;
 
 typedef struct{
@@ -16,10 +16,11 @@ typedef struct{
 } variable_t;
 
 int semantic_check_node(node_t node, dynamic_array_t* vars);
-variable_t* check_var(dynamic_array_t vars, token_t var);
 int create_symbol_table(dynamic_array_t* scoped_nodes, node_t node, scoped_node_t* parent);
+
 uint8_t push_var(dynamic_array_t* vars, token_t var);
 scoped_node_t push_scoped_node(dynamic_array_t* scoped_nodes, node_t node, dynamic_array_t* scope);
+variable_t* check_var(dynamic_array_t vars, token_t var);
 
 int semantic_check(node_t* root){
     int err_cnt = 0;
@@ -29,6 +30,7 @@ int semantic_check(node_t* root){
     create_symbol_table(&vars, *root, NULL); 
     scoped_node_t* scps = vars.data;
 
+    //starts from 1 because the 0 is root node which doesn't have any code
     for(int i = 1; i < vars.size; i++){
         if(semantic_check_node(scps[i].node, &scps[i].scope)) err_cnt++;
     }
@@ -39,13 +41,15 @@ int semantic_check(node_t* root){
 
 int semantic_check_node(node_t node, dynamic_array_t* vars){
     int errcunt = 0;
+    if(node.token.type == KEYWORD_IF && node.child_count <= 0){
+            fprintf(stdout, "WARN: Empty if block\n");
+    }
     for(int i = 0; i < node.args_count; i++){
-        if(node.args[i].type == VARIABLE){
-            if(check_var(*vars, node.args[i]) == NULL){
+        if(node.args[i].type == VARIABLE && check_var(*vars, node.args[i]) == NULL){
                 fprintf(stdout, "unkonw var\n");
                 errcunt += 1;
-            }
         }
+
     }
     return errcunt;
 }
@@ -84,6 +88,10 @@ variable_t* check_var(dynamic_array_t vars, token_t var){
 	return NULL;
 }
 
+/* 
+    utils(work with dynamic array_t) 
+    in future it should be moved to coreutils and centralized(make general function)
+*/
 uint8_t push_var(dynamic_array_t* vars, token_t var){
 	check_array_capacity(vars, sizeof(variable_t));
 	variable_t* variables = vars->data;
