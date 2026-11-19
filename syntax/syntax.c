@@ -9,12 +9,11 @@
 void check_syntax_node(int* current_line, int* errors_count, node_t node);
 error_t check_node(node_rule_t* rules, int rules_lenght,node_t node);
 
-int syntax_checker(dynamic_array_t* _nodes){
+int syntax_checker(node_t* root){
 	int errors_count = 0;
 
-	node_t* nodes = _nodes->data;
-
-    for(int i = 1; i <= _nodes->size; i++){
+	node_t* nodes = root->child;
+    for(int i = 1; i <= root->child_count; i++){
    		check_syntax_node(&i, &errors_count, nodes[i - 1]);
 	}
 	return errors_count;

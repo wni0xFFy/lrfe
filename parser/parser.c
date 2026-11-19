@@ -6,7 +6,8 @@
 node_t assembly_node(token_t* tokens, int* current_pos, int tokens_size);
 inline int is_keyword(token_t tk);
 
-dynamic_array_t nodes(dynamic_array_t* tokens){
+node_t nodes(dynamic_array_t* tokens){
+	node_t root = {0};
 	token_t* tks = tokens->data;
 	dynamic_array_t nodes = create_array(16, sizeof(node_t));
 
@@ -17,7 +18,9 @@ dynamic_array_t nodes(dynamic_array_t* tokens){
 			check_array_capacity(&nodes, sizeof(node_t));
 		}
 	}
-	return nodes;
+	root.child = nodes.data;
+	root.child_count = nodes.size;
+	return root;
 }
 
 node_t assembly_node(token_t* tokens, int* current_pos, int tokens_size){

@@ -1,5 +1,5 @@
 #pragma once
 
-#include <coreutils.h>
+#include <parser.h>
 
-int syntax_checker(dynamic_array_t* _nodes);
+int syntax_checker(node_t* root);

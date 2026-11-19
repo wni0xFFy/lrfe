@@ -1,0 +1,15 @@
+var x 10
+var y 10
+
+if x == y {
+    var z 10
+    print z
+    if x == z {
+        print x 
+        print y
+        var xyz 3
+        if xyz == x {
+            print xyl
+        }
+    }
+}

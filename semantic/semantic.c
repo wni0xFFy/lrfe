@@ -15,47 +15,33 @@ typedef struct{
     int name_lenght;
 } variable_t;
 
-int semantic_check_node(node_t node, dynamic_array_t* vars, int scope);
-variable_t* check_var(dynamic_array_t vars, token_t var, int scope);
+int semantic_check_node(node_t node, dynamic_array_t* vars);
+variable_t* check_var(dynamic_array_t vars, token_t var);
 int create_symbol_table(dynamic_array_t* scoped_nodes, node_t node, scoped_node_t* parent);
 uint8_t push_var(dynamic_array_t* vars, token_t var);
 scoped_node_t push_scoped_node(dynamic_array_t* scoped_nodes, node_t node, dynamic_array_t* scope);
 
-int semantic_check(dynamic_array_t* nodes){
+int semantic_check(node_t* root){
     int err_cnt = 0;
-    node_t* nds = nodes->data;
+
     dynamic_array_t vars = create_array(256, sizeof(scoped_node_t));
-    node_t root = {0};
-    root.child = nds;
-    root.child_count = nodes->size;
-    create_symbol_table(&vars, root, NULL); 
+
+    create_symbol_table(&vars, *root, NULL); 
     scoped_node_t* scps = vars.data;
 
-    scoped_node_t* nd12 = vars.data;
-    variable_t* var = nd12[vars.size - 1].scope.data;
-    fprintf(stdout,"%d", vars.size);
     for(int i = 1; i < vars.size; i++){
-        scoped_node_t scoped_node = nd12[i];
-        for(int k = 0; k < scoped_node.scope.size; k++){
-            fprintf(stdout, "%.*s ", var[k].name_lenght, var[k].name); 
-        }   
-        fprintf(stdout, "\n");
+        if(semantic_check_node(scps[i].node, &scps[i].scope)) err_cnt++;
     }
-    for(int i = 1; i < vars.size; i++){
-        if(semantic_check_node(scps[i].node, &scps[i].scope, 0)) err_cnt++;
-    }
-
-    variable_t* vrs = vars.data;
 
     delete_array(vars);
     return err_cnt;
 }
 
-int semantic_check_node(node_t node, dynamic_array_t* vars, int scope){
+int semantic_check_node(node_t node, dynamic_array_t* vars){
     int errcunt = 0;
     for(int i = 0; i < node.args_count; i++){
         if(node.args[i].type == VARIABLE){
-            if(check_var(*vars, node.args[i], 0) == NULL){
+            if(check_var(*vars, node.args[i]) == NULL){
                 fprintf(stdout, "unkonw var\n");
                 errcunt += 1;
             }
@@ -88,7 +74,7 @@ int create_symbol_table(dynamic_array_t* scoped_nodes, node_t node, scoped_node_
     return 0;
 }
 
-variable_t* check_var(dynamic_array_t vars, token_t var, int scope){
+variable_t* check_var(dynamic_array_t vars, token_t var){
 	variable_t* v = vars.data;
 	for(int i = 0; i < vars.size; i++){
 		if(memcmp(v[i].name, var.str_view, var.str_view_lenght) == 0){

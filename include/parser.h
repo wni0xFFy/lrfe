@@ -15,4 +15,4 @@ typedef struct node_t{
 	uint8_t flags;
 } node_t;
 
-dynamic_array_t nodes(dynamic_array_t* tokens); 
+node_t nodes(dynamic_array_t* tokens); 
