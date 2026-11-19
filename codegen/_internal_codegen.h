@@ -43,8 +43,6 @@ typedef struct{
 	uint8_t address_offset; //offset relatively RBP
 }  variable_t;
 
-
-uint8_t give_adresses(dynamic_array_t* vars, dynamic_array_t nodes, uint8_t last_address_offset);
 uint8_t str_to_num(char* str, int str_len);
 uint8_t define_stack_offset(dynamic_array_t vars, token_t var);
 uint8_t push_instruction(dynamic_array_t* arr, instruction_t inst);

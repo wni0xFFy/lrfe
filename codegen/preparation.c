@@ -6,10 +6,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-uint8_t give_adresses(dynamic_array_t* vars, dynamic_array_t nodes, uint8_t last_address_offset){
-	node_t* nds = nodes.data;
+uint8_t give_adresses(dynamic_array_t* vars, node_t* root, uint8_t last_address_offset){
+	node_t* nds = root->child;
 
-	for(int i = 0; i < nodes.size; i++){
+	for(int i = 0; i < root->child_count; i++){
 		if(nds[i].token.type == KEYWORD_VAR){
 			variable_t var = (variable_t){
 				.name = nds[i].args[0].str_view,
@@ -23,11 +23,7 @@ uint8_t give_adresses(dynamic_array_t* vars, dynamic_array_t nodes, uint8_t last
 			}
 		}
 		if(nds[i].child_count > 0){
-			dynamic_array_t childs = (dynamic_array_t){
-				.data = nds[i].child,
-				.size = nds[i].child_count,
-			};
-			last_address_offset = give_adresses(vars, childs, last_address_offset);
+			last_address_offset = give_adresses(vars, &nds[i], last_address_offset);
 		}
 	}
 	return last_address_offset;

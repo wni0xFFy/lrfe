@@ -5,7 +5,7 @@
 #include <syntax.h>
 #include <codegen.h>
 #include <string.h>
-
+#include <semantic.h>
 typedef enum{
 	FULL,
 	TOKENS,
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]){
 
 	dynamic_array_t* tkens = tokens(buffer, s);
 	if(tkens == NULL){fprintf(stdout, "not enough memory\n"); return 1;}
-	dynamic_array_t ndes = {};
+	node_t root = {0};
 	dynamic_array_t ins = {0};
 	dynamic_array_t vrs = create_array(256, 1);
 
@@ -59,71 +59,58 @@ int main(int argc, char* argv[]){
 			return 0;
 		case TOKENS_PARSING:
 			view_tokens(*tkens);
-			ndes = nodes(tkens);
+			root = nodes(tkens);
 			return 0;
 		case TOKENS_PARSING_SYNTAX:
 			view_tokens(*tkens);
-			ndes = nodes(tkens);
-			return syntax_checker(&ndes);
+			root = nodes(tkens);
+			return syntax_checker(&root);
 		default:
 			break;
 	}
 
-	ndes = nodes(tkens);
-	if(syntax_checker(&ndes)){
+	root = nodes(tkens);
+	for(int i = 0; i < root.child_count; i++){
+		if(root.child[i].flags != 0) fprintf(stdout, "0");
+	}
+	if(syntax_checker(&root)){
 		fprintf(stdout, "Can't compile, errors.");
 		return 1;
 	}
-
-	give_adresses(&vrs,ndes,0);
+	if(semantic_check(&root)){	
+			fprintf(stdout, "Semantic Errors.");
+	}
+	give_adresses(&vrs,&root,0);
 	generate_init(&ins);
 
-	node_t* nds = ndes.data;
-	for(int i = 0; i < ndes.size; i++){
-		gen_node(&ins,&vrs,nds[i]);
+	for(int i = 0; i < root.child_count; i++){
+		gen_node(&ins,&vrs, root.child[i]);
 	}
 	
 	generate_exit(&ins);
 	dynamic_array_t bytes = create_elf_bytes(ins);
 
+	//work with fille
 	cut_str(argv[1]);
 	FILE* output = fopen(argv[1], "wb");
 	uint8_t* bts = bytes.data;
 	fwrite(bts, 1, bytes.size, output);
 	fclose(output);
 
-	for(int i = 0; i < ndes.size; i++){
-			free(nds[i].child);
-	}
+	//cleaning
+
 	free(buffer);
 	delete_array(vrs);
 	delete_array(ins);
+	delete_array(bytes);
 	return 0;
 }
 
 void view_tokens(dynamic_array_t tokens){
 	token_t* tks = tokens.data;
-	char* text_impl[] = { 
-		"PLUS",
-		"MINUS",
-		"EQUAL",
-		"FEWER",
-	    "OPERATOR_GREATER",
-		"OPEN-BRACKET",
-		"CLOSE-BRACKET",
-		"NEWLINE\n",
-		"FUNCTION",
-		"NUM-LITERAL",
-		"VARIABLE",
-		"gs",
-		"KEYWORD-VAR",
-		"KEYWORD-PRINT",
-		"KEYWORD-IF",
-		"ge",
-	};
 
 	for(int i = 0; i < tokens.size; i++){
-		fprintf(stdout, "%s ", text_impl[tks[i].type]);
+		fprintf(stdout, "%s", token_to_string((int)tks[i].type));
 	}
 }
 

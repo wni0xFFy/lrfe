@@ -24,6 +24,7 @@ typedef enum{
 	KEYWORD_PRINT,
 	KEYWORD_IF,
 	KEYWORDS_GROUP_END,
+	UNKNOWN,
 } token_type;
 
 typedef struct{
