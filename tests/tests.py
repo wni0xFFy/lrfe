@@ -35,6 +35,9 @@ for f in files:
             if res.returncode == 0:
                 print(f"[PASSED] {f.name}")
                 passed_count = passed_count + 1
+            else:
+                print(f"[FAILED] {f.name} error: {result.stdout}")
+                failed_count = failed_count + 1
         else:
             print(f"[PASSED] {f.name}")
             passed_count = passed_count + 1

@@ -49,7 +49,7 @@ uint8_t push_instruction(dynamic_array_t* arr, instruction_t inst);
 uint8_t push_variable(dynamic_array_t* arr, variable_t var);
 
 instruction_t generate_mov_r8m(dynamic_array_t vars,register_8_bit_t reg, token_t var);
-instruction_t generate_mov_r64b(instruction_t* output, register_64_bit_t reg, uint8_t value);
+instruction_t generate_mov_r64b(instruction_t* output, register_64_bit_t reg, uint8_t* value);
 instruction_t generate_lea_r64m(dynamic_array_t vars, instruction_t* output, register_64_bit_t reg, token_t var);
 instruction_t generate_syscall(instruction_t* output);
 instruction_t generate_mov_r64r64(instruction_t* output,register_64_bit_t src, register_64_bit_t dest);

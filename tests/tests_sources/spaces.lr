@@ -6,53 +6,12 @@
 
   
    
-var x 48
-    var y 48
+var x 67
+    var y 67
 
              
 
               if x         ==       y {   
                   
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
-                    print x
                     print x
               }

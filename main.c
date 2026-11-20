@@ -86,8 +86,9 @@ int main(int argc, char* argv[]){
 	for(int i = 0; i < root.child_count; i++){
 		gen_node(&ins,&vrs, root.child[i]);
 	}
-	
+
 	generate_exit(&ins);
+
 	dynamic_array_t bytes = create_elf_bytes(ins);
 
 	//work with fille

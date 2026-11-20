@@ -50,7 +50,7 @@ instruction_t generate_var_creation(dynamic_array_t vars, node_t node){
 }
 
 instruction_t generate_if_prologue(dynamic_array_t vars, node_t node){
-	instruction_t  generated_if = generate_mov_r8m(vars, AL, node.args[0]);
+	instruction_t generated_if = generate_mov_r8m(vars, AL, node.args[0]);
 	instruction_t tmp_instruction = generate_mov_r8m(vars, AH, node.args[2]);
 
 	generated_if.bytes = realloc(generated_if.bytes, generated_if.instruction_size + tmp_instruction.instruction_size + 4);
@@ -81,13 +81,17 @@ instruction_t generate_if_prologue(dynamic_array_t vars, node_t node){
 
 instruction_t generate_print(dynamic_array_t vars, node_t node){
 	instruction_t inst = {
-		.bytes = calloc(36, 1),
+		.bytes = malloc(256),
 		.instruction_size = 0
 	};
-	generate_mov_r64b(&inst, RAX, 1);
-	generate_mov_r64b(&inst, RDI, 1);
-	generate_mov_r64b(&inst, RDX, node.args[0].str_view_lenght);
-	generate_lea_r64m(vars, &inst, RSI, node.args[0]);
+	uint8_t syscall_num[] = {0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+	uint8_t output[] =      {0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+	uint8_t lenght[] = {node.args[0].str_view_lenght, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+	generate_mov_r64b(NULL, RDI, &syscall_num[0]);
+	generate_mov_r64b(&inst, RAX, &output[0]);
+	generate_mov_r64b(&inst, RDI, &output[0]);
+	generate_mov_r64b(&inst, RDX, &lenght[0]);
+	//generate_lea_r64m(vars, &inst, RSI, node.args[0]);
 	generate_syscall(&inst);
 	return inst;
 }
@@ -98,8 +102,10 @@ uint8_t generate_init(dynamic_array_t* instructions){
 }
 
 uint8_t generate_exit(dynamic_array_t* instructions){
-	push_instruction(instructions,generate_mov_r64b(NULL, RAX, 60));
-	push_instruction(instructions,generate_mov_r64b(NULL, RDI, 0));
+	static uint8_t syscall_num[] = {0x3C, 0,0,0,0,0,0,0};
+	static uint8_t retcode[] = {0,0,0,0,0,0,0,0};
+	push_instruction(instructions,generate_mov_r64b(NULL, RAX, &syscall_num[0]));
+	push_instruction(instructions,generate_mov_r64b(NULL, RDI, &retcode[0]));
 	push_instruction(instructions,generate_syscall(NULL));
 	return 0;
 }

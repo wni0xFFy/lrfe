@@ -6,51 +6,59 @@
 #include <string.h>
 //rm - means from memory(variable) to r8
 instruction_t generate_mov_r8m(dynamic_array_t vars,register_8_bit_t reg, token_t var){
-	uint8_t* bytes = malloc(3);
-	bytes[0] = 0x8A; // opcode
-	bytes[1] = (0b01000101) | (reg << 3);
-	bytes[2] = define_stack_offset(vars, var);
-	return (instruction_t){.bytes = bytes, .instruction_size = 3};
+	static uint8_t bytes[] = {
+		0x8A, // opcode
+		0b01000101,
+		0
+	};
+	
+	//dynamic data
+	instruction_t inst = (instruction_t){.bytes = malloc(3), .instruction_size = 3};
+	memcpy(inst.bytes, bytes, 3);
+	inst.bytes[1] |= reg << 3;
+	inst.bytes[2] = define_stack_offset(vars, var);
+	return inst;
 }
 
 //r64b - means immb to 64-bit register
-instruction_t generate_mov_r64b(instruction_t* output, register_64_bit_t reg, uint8_t value){
-	if(output != NULL){
-		output->bytes[output->instruction_size] = 0x48;
-		output->bytes[output->instruction_size + 1] = 0xB8 + reg;
-		output->bytes[output->instruction_size + 2] = value;
-        memset(output->bytes + 3, 0, 7);
-		output->instruction_size += 10;
-	}
-	uint8_t* bytes = calloc(10, 1);
-	bytes[0] = 0x48;
-	bytes[1] = 0xB8 + reg;
-	bytes[2] = value;
-    memset(bytes + 3, 0, 7);
-	return (instruction_t){
-		.bytes = bytes,
-		.instruction_size = 10,
+instruction_t generate_mov_r64b(instruction_t* output, register_64_bit_t reg, uint8_t* value){
+	static uint8_t bytes[] = {
+		0x48, //switching into x64 mode
+		0xB8, //opcode
+		0,0,0,0,0,0,0,0 //placeholder for value
 	};
+
+	instruction_t* inst = output;
+	if(output == NULL) inst = &((instruction_t){.bytes = malloc(10), .instruction_size = 0});
+	memcpy(&inst->bytes[inst->instruction_size], bytes, 2);
+
+	inst->bytes[inst->instruction_size + 1] += reg;
+	inst->instruction_size += 2;
+
+	memcpy(&inst->bytes[inst->instruction_size], value, 8);
+	inst->instruction_size += 8;
+	return *inst;
 }
 
 //r64m means memory address to 64-bit register
 instruction_t generate_lea_r64m(dynamic_array_t vars, instruction_t* output, register_64_bit_t reg, token_t var){
-	if(output != NULL){
-		output->bytes[output->instruction_size] = 0x48;
-		output->bytes[output->instruction_size + 1] = 0x8D;
-		output->bytes[output->instruction_size + 2] = 0b01000101 | (reg << 3);
-		output->bytes[output->instruction_size + 3] = define_stack_offset(vars, var);
-		output->instruction_size += 4;
-	}
-	uint8_t* bytes = malloc(4);
-	bytes[0] = 0x48;
-	bytes[1] = 0x8D;
-	bytes[2] =  0b01000101 | (reg << 3);
-	bytes[3] = define_stack_offset(vars, var);
-	return (instruction_t){
-		.bytes = bytes,
-		.instruction_size = 4,
+	static uint8_t bytes[] = {
+		0x48, //x64
+		0x8D, //opcode
+		0b1000101, //modr/m
+		0 //placeholder
 	};
+
+	instruction_t* inst = output;
+	if(output == NULL) inst = &((instruction_t){.bytes = malloc(4), .instruction_size = 0});
+	memcpy(&inst->bytes[inst->instruction_size], bytes, 3);
+
+	inst->instruction_size += 2;
+	inst->bytes[inst->instruction_size] |= reg << 3;
+	inst->bytes[inst->instruction_size + 1] = define_stack_offset(vars, var);
+	inst->instruction_size += 2;
+	
+	return *inst;
 }
 
 instruction_t generate_syscall(instruction_t* output){
@@ -59,9 +67,7 @@ instruction_t generate_syscall(instruction_t* output){
 		output->bytes[output->instruction_size + 1] = 0x05;
 		output->instruction_size += 2;
 	}
-	uint8_t* bytes = malloc(2);
-	bytes[0] = 0x0F;
-	bytes[1] = 0x05;
+	static uint8_t bytes[] = {0x0F,0x05};
 	return (instruction_t){
 		.bytes = bytes,
 		.instruction_size = 2,
@@ -76,10 +82,15 @@ instruction_t generate_mov_r64r64(instruction_t* output,register_64_bit_t src, r
 		output->bytes[output->instruction_size + 1] = (0b11000000 | (src << 3)) | dest;
 		output->instruction_size += 3;
 	}
-	uint8_t* bytes = malloc(3);
-	bytes[0] = 0x48;
-	bytes[1] = 0x89; //opcode
-	bytes[2] = (0b11000000 | (src << 3)) | dest;
+
+	static uint8_t bytes[3] = { 
+		0x48, 
+		0x89, //opcode
+		0, //place holder for modrm
+	};
+	uint8_t byte = (0b11000000 | (src << 3)) | dest;
+	bytes[2] = byte;
+
 	return (instruction_t){
 		.bytes = bytes,
 		.instruction_size = 3,

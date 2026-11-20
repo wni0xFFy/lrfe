@@ -32,3 +32,6 @@ var lkfgjlsfjkg 9
 var jaflkjfg 89
 var ljkfgj 10
 
+if a == a {
+    print a
+}
