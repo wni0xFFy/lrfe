@@ -1,0 +1,1 @@
+this folder is ONLY for my local development/tests/ideas it has NO general with other project

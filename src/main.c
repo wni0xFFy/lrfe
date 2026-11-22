@@ -6,6 +6,7 @@
 #include <codegen.h>
 #include <string.h>
 #include <semantic.h>
+#include <assembly.h>
 
 typedef enum{
 	FULL,
@@ -74,6 +75,10 @@ int main(int argc, char* argv[]){
 	for(int i = 0; i < root.child_count; i++){
 		if(root.child[i].flags != 0) fprintf(stdout, "0");
 	}
+	callstack_t st = create_stack(16);
+
+	gen_inst(&st, &root.child[0]);
+	return 1;
 	if(syntax_checker(&root)){
 		fprintf(stdout, "Can't compile, errors.");
 		return 1;
