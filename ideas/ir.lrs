@@ -1,0 +1,8 @@
+mov %1, 10
+
+jump
+
+cmp 10 %1 : ejmp aBkm
+
+.aBkm
+

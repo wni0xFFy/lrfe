@@ -58,7 +58,7 @@ token_type identify_token_type(char* str, unsigned long len){
 	};
 
 	struct table tokens_table[] = {
-		(struct table){.str = "var", .tp = KEYWORD_VAR},
+		(struct table){.str = "let", .tp = KEYWORD_VAR},
 		(struct table){.str = "print", .tp = KEYWORD_PRINT},
 		(struct table){.str = "if", .tp = KEYWORD_IF}, 
 		(struct table){.str = "}", .tp = CLOSE_CODE_BLOCK},

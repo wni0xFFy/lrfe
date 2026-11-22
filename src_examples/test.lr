@@ -1,6 +1,0 @@
-var x 67
-var y 67
-
-if x == y {
-    print y
-}

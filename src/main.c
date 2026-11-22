@@ -6,6 +6,7 @@
 #include <codegen.h>
 #include <string.h>
 #include <semantic.h>
+
 typedef enum{
 	FULL,
 	TOKENS,
@@ -42,7 +43,7 @@ int main(int argc, char* argv[]){
 	if(f == NULL) {fprintf(stdout,"%s can't open file\n", argv[1]); return 1;}
 	fseek(f, 0, SEEK_END);
 	int s = ftell(f) + 1;
-	rewind(f);
+	rewind(f); 
 	char* buffer = malloc(s);
 	fread(buffer, 1, s, f);
 	buffer[s - 1] = '\n';
