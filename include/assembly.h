@@ -37,6 +37,6 @@ typedef struct{
     int instructions_count;
 } insttemplate;
 
-instruction* gen_inst(callstack_t* st, node_t* node);
+instruction gen_inst(dynamic_array_t* insts,callstack_t* stack, node_t* node);
 insttemplate select_template(node_t node);
-instruction* create_instruction(insttemplate template, node_t* node, callstack_t* stack);
+instruction create_instruction(dynamic_array_t* arr, insttemplate template, node_t* node, callstack_t* stack);

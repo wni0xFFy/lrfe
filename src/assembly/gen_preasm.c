@@ -6,17 +6,15 @@
 #include <stdio.h>
 
 int create_unique_label();
+void _push_instruction(dynamic_array_t* arr, instruction inst);
 
 dynamic_array_t gen_instructions(node_t* root){
     return (dynamic_array_t){0};
 }
 
-instruction* gen_inst(callstack_t* stack, node_t* node){
-   // instruction* inst = malloc(2 * sizeof(instruction));
+instruction gen_inst(dynamic_array_t* insts, callstack_t* stack, node_t* node){
     insttemplate tmp = select_template(*node);
-    instruction* inst = create_instruction(tmp, node, stack);
-    fprintf(stdout, "%d", inst[1].work.args_count);
-    return NULL;
+    return create_instruction(insts, tmp, node, stack);
 }
 
 insttemplate select_template(node_t node){
@@ -56,37 +54,38 @@ insttemplate select_template(node_t node){
     return (insttemplate){0};
 }
 
-instruction* create_instruction(insttemplate template, node_t* node, callstack_t* stack){
-    instruction* instructions = malloc(template.instructions_count * sizeof(instruction));
+instruction create_instruction(dynamic_array_t* arr, insttemplate template, node_t* node, callstack_t* stack){
+    instruction inst = {0};
     for(int i = 0; i < template.instructions_count; i++){
-        instructions[i].work.args_count = template.type[i]->args_count;
-        instructions[i].work.type = template.type[i]->type;
-
-        switch(instructions[i].work.type){
+        inst.work.args_count = template.type[i]->args_count;
+        inst.work.type = template.type[i]->type;
+        
+        switch(inst.work.type){
             case JUMP_LABEL: {
-                instructions[i].args[0].str_view_lenght = create_unique_label(); 
-                push_stack(stack, instructions[i].args[0].str_view_lenght); 
-                fprintf(stdout, ".jp %d\n", instructions[i].args[0].str_view_lenght);
-                continue;
+                inst.args[0].str_view_lenght = create_unique_label(); 
+                push_stack(stack, inst.args[0].str_view_lenght); 
+                fprintf(stdout, ".jp %d\n", inst.args[0].str_view_lenght);
+                break;
             }
 
             case _CODEBLOCK: {
                 fprintf(stdout, "CODEBLLOOOCK\n");
-                continue;
+                break;
             }
 
             case CREATE_LABEL: {
-                instructions[i].args[0].str_view_lenght = pop_stack(stack); 
-                fprintf(stdout, ".label %d\n", instructions[i].args[0].str_view_lenght);
-                continue;
+                inst.args[0].str_view_lenght = pop_stack(stack); 
+                fprintf(stdout, ".label %d\n", inst.args[0].str_view_lenght);
+
+                break;
             }
 
             default: fprintf(stdout, "h\n");
         }
-
-        for(int k = 0; k < instructions[i].work.args_count; k++){instructions[i].args[k] = node->child[k].token;}
+        _push_instruction(arr, inst);
+        //for(int k = 0; k < (*output)[i].work.args_count; k++){(*output)[i].args[k] = node->child[k].token;}
     }
-    return instructions;
+    return inst;
 }
 
 int create_unique_label(){
@@ -112,4 +111,11 @@ uint8_t pop_stack(callstack_t* stack){
     uint8_t label = *(stack->sp);
     stack->sp -= 1;
     return label;
+}
+
+void _push_instruction(dynamic_array_t* arr, instruction inst){
+    check_array_capacity(arr, sizeof(instruction));
+    instruction* data = arr->data;
+    data[arr->size] = inst;
+    arr->size += 1;
 }

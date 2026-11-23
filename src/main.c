@@ -76,8 +76,11 @@ int main(int argc, char* argv[]){
 		if(root.child[i].flags != 0) fprintf(stdout, "0");
 	}
 	callstack_t st = create_stack(16);
+	dynamic_array_t arr = create_array(16, sizeof(instruction));
+	gen_inst(&arr, &st, &root.child[0]);
+	gen_inst(&arr,&st, &root.child[1]);
 
-	gen_inst(&st, &root.child[0]);
+	fprintf(stdout, "\n%d, %d", arr.size, ((instruction*)arr.data)[7].args->str_view_lenght);
 	return 1;
 	if(syntax_checker(&root)){
 		fprintf(stdout, "Can't compile, errors.");
