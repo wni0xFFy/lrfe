@@ -80,7 +80,7 @@ int main(int argc, char* argv[]){
 	gen_inst(&arr, &st, &root.child[0]);
 	gen_inst(&arr,&st, &root.child[1]);
 
-	fprintf(stdout, "\n%d, %d", arr.size, ((instruction*)arr.data)[7].args->str_view_lenght);
+	fprintf(stdout, "\n%d, %d", arr.size, ((instruction*)arr.data)[arr.size - 1].args->str_view_lenght);
 	return 1;
 	if(syntax_checker(&root)){
 		fprintf(stdout, "Can't compile, errors.");

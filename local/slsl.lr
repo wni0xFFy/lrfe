@@ -1,5 +1,7 @@
 if a == a { 
-
+    if b == b {
+        var a a 
+    }
 }
  if b == b {
         

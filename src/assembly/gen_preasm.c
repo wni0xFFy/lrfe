@@ -59,7 +59,7 @@ instruction create_instruction(dynamic_array_t* arr, insttemplate template, node
     for(int i = 0; i < template.instructions_count; i++){
         inst.work.args_count = template.type[i]->args_count;
         inst.work.type = template.type[i]->type;
-        
+
         switch(inst.work.type){
             case JUMP_LABEL: {
                 inst.args[0].str_view_lenght = create_unique_label(); 
@@ -69,14 +69,16 @@ instruction create_instruction(dynamic_array_t* arr, insttemplate template, node
             }
 
             case _CODEBLOCK: {
+                for(int i = 0; i < node->child_count; i++){
+                    create_instruction(arr, select_template(node->child[i]), &node->child[i], stack);
+                }
                 fprintf(stdout, "CODEBLLOOOCK\n");
-                break;
+                continue;
             }
 
             case CREATE_LABEL: {
                 inst.args[0].str_view_lenght = pop_stack(stack); 
                 fprintf(stdout, ".label %d\n", inst.args[0].str_view_lenght);
-
                 break;
             }
 
