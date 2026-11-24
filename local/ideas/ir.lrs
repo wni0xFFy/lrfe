@@ -1,8 +1,6 @@
-mov %1, 10
-
-jump
-
-cmp 10 %1 : ejmp aBkm
-
-.aBkm
+.mv $1, 10
+.cmp $1, $2
+    .jmp 1
+    .mv $2, 12   
+.label 1
 

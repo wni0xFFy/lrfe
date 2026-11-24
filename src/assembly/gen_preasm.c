@@ -67,12 +67,20 @@ instruction create_instruction(dynamic_array_t* arr, insttemplate template, node
                 fprintf(stdout, ".jp %d\n", inst.args[0].str_view_lenght);
                 break;
             }
-
+            case COMPARE: {
+                inst.args[0] = node->args[0]; inst.args[1] = node->args[2];
+                fprintf(stdout,".cmp %.*s, %.*s\n", 1,inst.args[0].str_view, 1  ,inst.args[1].str_view);
+                break;
+            }
+            case MOV: {
+                inst.args[0] = node->args[0]; inst.args[1] = node->args[1];
+                fprintf(stdout,".mv %.*s, %.*s\n", 1, inst.args[0].str_view, inst   .args[1].str_view_lenght,inst.args[1].str_view);
+                break;
+            }
             case _CODEBLOCK: {
                 for(int i = 0; i < node->child_count; i++){
                     create_instruction(arr, select_template(node->child[i]), &node->child[i], stack);
                 }
-                fprintf(stdout, "CODEBLLOOOCK\n");
                 continue;
             }
 
@@ -82,9 +90,10 @@ instruction create_instruction(dynamic_array_t* arr, insttemplate template, node
                 break;
             }
 
-            default: fprintf(stdout, "h\n");
+            default: fprintf(stdout, "some stuff that i can't process\n");
         }
         _push_instruction(arr, inst);
+     //  fprintf(stdout, "\n");
         //for(int k = 0; k < (*output)[i].work.args_count; k++){(*output)[i].args[k] = node->child[k].token;}
     }
     return inst;

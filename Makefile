@@ -6,7 +6,7 @@ CFLAGS =  -g  -Wall -Wextra -O2 -I./include/
 BUILD_DIR = build
 BIN_DIR = bin
 
-SRCS := $(shell find . -name "*.c" )
+SRCS := $(shell find . -path "./local" -prune -o -name "*.c" -print)
 OBJS := $(SRCS:%.c=$(BUILD_DIR)/%.o)
 EXEC =  $(TARGET)
 

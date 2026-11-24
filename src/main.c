@@ -77,10 +77,13 @@ int main(int argc, char* argv[]){
 	}
 	callstack_t st = create_stack(16);
 	dynamic_array_t arr = create_array(16, sizeof(instruction));
-	gen_inst(&arr, &st, &root.child[0]);
-	gen_inst(&arr,&st, &root.child[1]);
+	fprintf(stdout, "%d", root.child[0].token.type);
+	for(int i = 0; i < root.child_count; i++){
+		gen_inst(&arr, &st, &root.child[i]);
+	}
+	//gen_inst(&arr,&st, &root.child[1]);
 
-	fprintf(stdout, "\n%d, %d", arr.size, ((instruction*)arr.data)[arr.size - 1].args->str_view_lenght);
+	//fprintf(stdout, "\n%d, %d", arr.size, ((instruction*)arr.data)[arr.size - 1].args->str_view_lenght);
 	return 1;
 	if(syntax_checker(&root)){
 		fprintf(stdout, "Can't compile, errors.");
