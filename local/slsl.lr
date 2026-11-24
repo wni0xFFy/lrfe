@@ -1,8 +1,8 @@
-if a == a { 
-    if b == b {
-        var a a 
+let a 1
+
+if a == a {
+    let z 1
+    if z == a {
+        let b 2
     }
-}
- if b == b {
-        
 }
