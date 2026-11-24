@@ -31,6 +31,8 @@ typedef struct{
 	token_type type; 
 	char* str_view;
 	int str_view_lenght;
+
+	uint8_t value;
 } token_t;
 
 dynamic_array_t* tokens(char* input, unsigned long file_size);

@@ -8,9 +8,9 @@
 
 const int MINIMAL_TOKENS_COUNT = 16;
 
-token_type identify_token_type(char* str, unsigned long len);
+token_type identify_token_type(token_t* tok, char* str, unsigned long len);
 inline uint8_t is_numeric_literal(char* str, unsigned long len);
-inline uint8_t push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght);
+inline uint8_t push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght, uint8_t value);
 void ffsymbol(char** str, unsigned int* len);
 
 dynamic_array_t* tokens(char* input, unsigned long file_size){
@@ -23,9 +23,10 @@ dynamic_array_t* tokens(char* input, unsigned long file_size){
 
 	for(unsigned long i = 0; i < file_size; i++){
 		if(input[i] == '\n' || input[i] == ' '){
-			token_type tk = identify_token_type(last_token_start, (input + i) - last_token_start);
+			token_t tok = {0};
+			token_type tk = identify_token_type(&tok, last_token_start, (input + i) - last_token_start);
 			
-			if(push_token(arr, tk, last_token_start, (input + i) - last_token_start)) {
+			if(push_token(arr, tk, last_token_start, (input + i) - last_token_start, tok.value)){
 					delete_array(*arr);
 					free(arr);
 					return NULL;
@@ -33,7 +34,7 @@ dynamic_array_t* tokens(char* input, unsigned long file_size){
 
 			while(i < file_size && input[i] == ' ') i++;
 			if(input[i] == '\n'){
-				if(push_token(arr, NEWLINE, NULL, 0)){
+				if(push_token(arr, NEWLINE, NULL, 0, tok.value)){
 					delete_array(*arr);
 					free(arr);
 					return NULL;
@@ -49,7 +50,7 @@ dynamic_array_t* tokens(char* input, unsigned long file_size){
 }
 
 
-token_type identify_token_type(char* str, unsigned long len){
+token_type identify_token_type(token_t* tok, char* str, unsigned long len){
 	if(str[0] == '@') return FUNCTION;
 	
 	struct table{
@@ -73,23 +74,29 @@ token_type identify_token_type(char* str, unsigned long len){
 	for(unsigned long i = 0; i < sizeof(tokens_table) / sizeof(struct table); i++){
 		if(strlen(tokens_table[i].str) != len) continue;
 		if(memcmp(str, tokens_table[i].str, strlen(tokens_table[i].str)) == 0){
+			fprintf(stdout, "%s\n", tokens_table[i].str);
 			return tokens_table[i].tp;
 		}
 	}
-	
-	return is_numeric_literal(str, len) ? NUM_LITERAL : VARIABLE;
+	tok->value = is_numeric_literal(str, len);
+	return tok->value ? NUM_LITERAL : VARIABLE;
 }
-
 inline uint8_t is_numeric_literal(char* str, unsigned long len){
+	uint8_t num = 0;
+	int digit = 0;
 	for(unsigned long idx = 0; idx < len; idx++){
-		if(!isdigit(str[idx])) return 0;
+		digit = isdigit(str[idx]);
+		if(digit == 0) return 0;
+		else num *=	10; num += str[idx] - '0';
 	}
-	return 1;
+	return num;
 }
 
-inline uint8_t push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght){
+
+inline uint8_t push_token(dynamic_array_t* arr, token_type type, char* token_str, int token_lenght, uint8_t value){
 	if(check_array_capacity(arr, sizeof(token_t))) return 1; 
 	((token_t*)arr->data)[arr->size] = (token_t){
+		.value = value,
 		.type = type, 
 		.str_view = token_str, 
 		.str_view_lenght = token_lenght,

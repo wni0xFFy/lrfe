@@ -62,9 +62,9 @@ instruction create_instruction(dynamic_array_t* arr, insttemplate template, node
 
         switch(inst.work.type){
             case JUMP_LABEL: {
-                inst.args[0].str_view_lenght = create_unique_label(); 
-                push_stack(stack, inst.args[0].str_view_lenght); 
-                fprintf(stdout, ".jp %d\n", inst.args[0].str_view_lenght);
+                inst.args[0].value = create_unique_label(); 
+                push_stack(stack, inst.args[0].value); 
+                fprintf(stdout, ".jp %d\n", inst.args[0].value);
                 break;
             }
             case COMPARE: {
@@ -74,7 +74,7 @@ instruction create_instruction(dynamic_array_t* arr, insttemplate template, node
             }
             case MOV: {
                 inst.args[0] = node->args[0]; inst.args[1] = node->args[1];
-                fprintf(stdout,".mv %.*s, %.*s\n", 1, inst.args[0].str_view, inst   .args[1].str_view_lenght,inst.args[1].str_view);
+                fprintf(stdout,".mv %.*s, %d\n", 1, inst.args[0].str_view, inst.args[1].value);
                 break;
             }
             case _CODEBLOCK: {
